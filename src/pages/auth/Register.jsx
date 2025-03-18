@@ -78,6 +78,14 @@ const Register = () => {
     setShowTermsModal(false);
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:5559/auth/google";
+  };
+
+  const handlefaceBookLogin = () => {
+    window.location.href = "http://localhost:5559/auth/facebook";
+  };
+
   return (
     <Dashboard>
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
@@ -89,11 +97,15 @@ const Register = () => {
 
           {/* Social Login Buttons */}
           <div className="flex flex-col gap-3 mb-5">
-            <button className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition-all">
+            <button 
+              onClick={handleGoogleLogin}
+              className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition-all">
               <FcGoogle className="w-6 h-6 mr-2" />
               Continue with Google
             </button>
-            <button className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
+            <button 
+              onClick={handlefaceBookLogin}
+              className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
               <FaFacebook className="w-6 h-6 mr-2" />
               Continue with Facebook
             </button>
