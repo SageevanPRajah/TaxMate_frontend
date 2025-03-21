@@ -1,8 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 
 const DeleteProduct = ({ product, onClose, onDelete }) => {
   const handleDelete = async () => {
+    if (!product) {
+      console.error('Product is undefined');
+      return;
+    }
     try {
       await axios.delete(`http://localhost:5559/product/${product._id}`);
       onDelete(product._id); // Update the product list after deletion
@@ -34,5 +39,15 @@ const DeleteProduct = ({ product, onClose, onDelete }) => {
     </div>
   );
 };
+DeleteProduct.propTypes = {
+  product: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
 
 export default DeleteProduct;
+

@@ -1,4 +1,3 @@
-import React from 'react'
 import {Routes, Route} from 'react-router-dom'
 
 //Common
@@ -17,6 +16,23 @@ import Register from './pages/auth/Register.jsx';
 import Profile from './pages/auth/Profile.jsx';
 import AuthSuccess from './pages/auth/AuthSuccess.jsx';
 
+//assets
+import IndexAssets  from './pages/assets/IndexAssets.jsx';  
+import CreateAssets from './pages/assets/CreateAssets.jsx';
+import ViewAssets from './pages/assets/ViewAssets.jsx';
+import EditAssets from './pages/assets/EditAssets.jsx';
+import DeleteAssets from './pages/assets/DeleteAssets.jsx';
+
+
+// liabilities
+import IndexLiabilities from './pages/liabilities/IndexLiabilities.jsx';
+import CreateLiabilities from './pages/liabilities/CreateLiabilities.jsx';
+import ViewLiabilities from './pages/liabilities/ViewLiabilities.jsx';
+import EditLiabilities from './pages/liabilities/EditLiabilities.jsx';
+import DeleteLiabilities from './pages/liabilities/DeleteLiabilities.jsx';
+
+
+
 const App = () => {
   return (
     <Routes>
@@ -33,9 +49,26 @@ const App = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/auth-success" element={<AuthSuccess />} />
+       
+      {/** Assets */}
+      <Route path="/assets" element={<IndexAssets />} />
+      <Route path="/assets/create" element={<CreateAssets />} />
+      <Route path="/assets/detail/:id" element={<ViewAssets />} />
+      <Route path="/assets/edit/:id" element={<EditAssets />} />
+      <Route path="/assets/delete/:id" element={<                                                                                              DeleteAssets />} />
+
+       {/** Liabilities */}    
+      <Route path="/liabilities" element={<IndexLiabilities />} />
+      <Route path="/liabilities/create" element={<CreateLiabilities />} />
+      { <Route path="/liabilities/detail/:id" element={<ViewLiabilities />} />}
+      <Route path="/liabilities/edit/:id" element={<EditLiabilities />} />
+      { <Route path="/liabilities/delete/:id" element={<DeleteLiabilities />} /> }
+
       
     </Routes>
   )
 }
 
 export default App
+
+
