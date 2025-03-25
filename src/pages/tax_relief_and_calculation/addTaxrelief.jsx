@@ -3,8 +3,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard';
 
-const statusOptions = [ 'paid', 'non paid'];
-
 const AddTaxRelief = () => {
   const navigate = useNavigate();
   const [taxRelief, setTaxRelief] = useState({
@@ -12,48 +10,84 @@ const AddTaxRelief = () => {
     year: '',
     income: '',
     deduction: '',
-    taxReliefs: [],
-    finalTaxAmount: '',
+    
     status: '',
+    taxReliefs: [] // Must be non-empty when submitting!
   });
-
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
+  // Update top-level fields (userID, year, income, etc.)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTaxRelief((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Update individual tax relief entries in the array
   const handleTaxReliefEntryChange = (index, field, value) => {
-    const updatedTaxReliefs = [...taxRelief.taxReliefs];
-    updatedTaxReliefs[index][field] = value;
-    setTaxRelief((prev) => ({ ...prev, taxReliefs: updatedTaxReliefs }));
+    const updatedEntries = [...taxRelief.taxReliefs];
+    updatedEntries[index][field] = value;
+    setTaxRelief((prev) => ({ ...prev, taxReliefs: updatedEntries }));
   };
 
+  // Add a new tax relief entry (object with taxReliefID, taxReliefDescription, and reliefAmount)
   const addTaxReliefEntry = () => {
     setTaxRelief((prev) => ({
       ...prev,
-      taxReliefs: [...prev.taxReliefs, { taxReliefID: '', taxReliefDescription: '', reliefAmount: '' }],
+      taxReliefs: [
+        ...prev.taxReliefs,
+        { taxReliefID: '', taxReliefDescription: '', reliefAmount: '' }
+      ]
     }));
   };
 
+  // Remove a tax relief entry (if more than one exists)
   const removeTaxReliefEntry = (index) => {
-    const updatedTaxReliefs = taxRelief.taxReliefs.filter((_, i) => i !== index);
-    setTaxRelief((prev) => ({ ...prev, taxReliefs: updatedTaxReliefs }));
+    const updatedEntries = taxRelief.taxReliefs.filter((_, i) => i !== index);
+    setTaxRelief((prev) => ({ ...prev, taxReliefs: updatedEntries }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-
+    setError('');
+  
+    if (
+      !taxRelief.userID.trim() ||
+      !taxRelief.status ||
+      Number(taxRelief.income) <= 0 ||
+      Number(taxRelief.deduction) < 0 ||
+      !Array.isArray(taxRelief.taxReliefs) ||
+      taxRelief.taxReliefs.length === 0 ||
+      taxRelief.taxReliefs.some(
+        (entry) =>
+          !entry.taxReliefID.trim() ||
+          !entry.taxReliefDescription.trim() ||
+          Number(entry.reliefAmount) <= 0
+      )
+    ) {
+      setError('Please make sure all required fields are filled and all amounts are positive numbers.');
+      setLoading(false);
+      return;
+    }
+  
     try {
-      await axios.post('http://localhost:5559/taxRelief', taxRelief);
+      const payload = {
+        ...taxRelief,
+        income: Number(taxRelief.income),
+        deduction: Number(taxRelief.deduction),
+        taxReliefs: taxRelief.taxReliefs.map((entry) => ({
+          taxReliefID: entry.taxReliefID,
+          taxReliefDescription: entry.taxReliefDescription,
+          reliefAmount: Number(entry.reliefAmount),
+        })),
+      };
+  
+      await axios.post('http://localhost:5559/taxRelief', payload);
       navigate('/taxRelief');
-    } catch (error) {
+    } catch (err) {
       setError('Failed to create tax relief. Please try again.');
-      console.error('Error creating tax relief:', error);
+      console.error('Error creating tax relief:', err);
     } finally {
       setLoading(false);
     }
@@ -61,74 +95,115 @@ const AddTaxRelief = () => {
 
   return (
     <Dashboard>
-      <div className='flex items-center justify-center min-h-[calc(100vh-4rem)]'>
-        <div className='bg-white p-8 rounded-lg shadow-lg w-[28rem] backdrop-blur-lg'>
-          <h2 className='mb-6 text-3xl font-bold text-center text-gray-800'>Add Tax Relief</h2>
-          {error && <p className='mb-3 text-center text-red-500'>{error}</p>}
-
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="p-8 bg-white rounded-lg shadow-lg w-96">
+          <h2 className="mb-4 text-2xl font-bold">Add Tax Relief</h2>
+          {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
-            <div className='grid grid-cols-1 gap-4'>
-              
-              <input type='text' name='year' placeholder='Year' className='p-3 border border-gray-300 rounded' onChange={handleChange} required />
-              <input type='number' name='income' placeholder='Income' className='p-3 border border-gray-300 rounded' onChange={handleChange} required />
-              <input type='number' name='deduction' placeholder='Deduction' className='p-3 border border-gray-300 rounded' onChange={handleChange} required />
-              <input type='number' name='finalTaxAmount' placeholder='Final Tax Amount' className='p-3 border border-gray-300 rounded' onChange={handleChange} required />
-              <select
-                name='status'
-                value={taxRelief.status}
-                onChange={handleChange}
-                className='p-3 border border-gray-300 rounded'
-                required
-              >
-                <option value='' disabled>Select Status</option>
-                {statusOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+            {/* User ID (required) */}
+            <input
+              type="text"
+              name="userID"
+              placeholder="User ID"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+              value={taxRelief.userID}
+              onChange={handleChange}
+              required
+            />
+            {/* Optional: Year */}
+            <input
+              type="text"
+              name="year"
+              placeholder="Year"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+              value={taxRelief.year}
+              onChange={handleChange}
+            />
+            {/* Income (required) */}
+            <input
+              type="number"
+              name="income"
+              placeholder="Income"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+              value={taxRelief.income}
+              onChange={handleChange}
+              required
+            />
+            {/* Deduction (required) */}
+            <input
+              type="number"
+              name="deduction"
+              placeholder="Deduction"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+              value={taxRelief.deduction}
+              onChange={handleChange}
+              required
+            />
+            
+            {/* Status (required) */}
+            <select
+              name="status"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+              value={taxRelief.status}
+              onChange={handleChange}
+              required
+            >
+              <option value="" disabled>Select Status</option>
+              <option value="paid">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="not paid">Not Paid</option>
+            </select>
 
-              {/* Tax Relief Entries */}
-              <div className='space-y-4'>
-                {taxRelief.taxReliefs.map((entry, index) => (
-                  <div key={index} className='p-4 border rounded-lg'>
-                   
-                    <input
-                      type='text'
-                      placeholder='Description'
-                      value={entry.taxReliefDescription}
-                      onChange={(e) => handleTaxReliefEntryChange(index, 'taxReliefDescription', e.target.value)}
-                      className='w-full p-2 mb-2 border border-gray-300 rounded'
-                      required
-                    />
-                    <input
-                      type='number'
-                      placeholder='Amount'
-                      value={entry.reliefAmount}
-                      onChange={(e) => handleTaxReliefEntryChange(index, 'reliefAmount', e.target.value)}
-                      className='w-full p-2 mb-2 border border-gray-300 rounded'
-                      required
-                    />
-                    <button
-                      type='button'
-                      onClick={() => removeTaxReliefEntry(index)}
-                      className='w-full py-2 text-white bg-red-500 rounded hover:bg-red-600'
-                    >
-                      Remove Entry
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type='button'
-                  onClick={addTaxReliefEntry}
-                  className='w-full py-2 text-white bg-blue-500 rounded hover:bg-blue-600'
-                >
-                  Add Tax Relief Entry
-                </button>
+            <h3 className="mt-4 font-bold">Tax Relief Entries</h3>
+            {taxRelief.taxReliefs.map((entry, index) => (
+              <div key={index} className="p-2 my-2 border rounded">
+                <input
+                  type="text"
+                  placeholder="Tax Relief ID"
+                  className="w-full p-2 mb-2 border border-gray-300 rounded"
+                  value={entry.taxReliefID}
+                  onChange={(e) => handleTaxReliefEntryChange(index, 'taxReliefID', e.target.value)}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Tax Relief Description"
+                  className="w-full p-2 mb-2 border border-gray-300 rounded"
+                  value={entry.taxReliefDescription}
+                  onChange={(e) => handleTaxReliefEntryChange(index, 'taxReliefDescription', e.target.value)}
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Relief Amount"
+                  className="w-full p-2 mb-2 border border-gray-300 rounded"
+                  value={entry.reliefAmount}
+                  onChange={(e) => handleTaxReliefEntryChange(index, 'reliefAmount', e.target.value)}
+                  required
+                />
+                {taxRelief.taxReliefs.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeTaxReliefEntry(index)}
+                    className="w-full py-1 text-white bg-red-500 rounded"
+                  >
+                    Remove Entry
+                  </button>
+                )}
               </div>
-            </div>
-
-            <button type='submit' className='w-full py-3 mt-4 font-semibold text-white transition-all bg-green-600 rounded-lg hover:bg-green-700' disabled={loading}>
+            ))}
+            <button
+              type="button"
+              onClick={addTaxReliefEntry}
+              className="w-full py-2 mb-4 text-white bg-blue-500 rounded"
+            >
+              Add Tax Relief Entry
+            </button>
+            <button
+              type="submit"
+              className="w-full py-2 text-white bg-green-600 rounded"
+              disabled={loading}
+            >
               {loading ? 'Submitting...' : 'Submit'}
             </button>
           </form>

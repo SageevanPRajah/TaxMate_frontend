@@ -9,13 +9,13 @@ const AddTaxRate = () => {
 
   const handleAddRow = () => {
     setSlabs([...slabs, { incomeTaxSlab: '', taxRate: '' }]);
-  };
+   };
 
   const handleChange = (index, field, value) => {
     const updated = [...slabs];
     updated[index][field] = value;
     setSlabs(updated);
-  };
+   };
 
   const handleSubmit = async () => {
     try {

@@ -11,7 +11,7 @@ const EditTaxRelief = () => {
     year: '',
     income: '',
     deduction: '',
-    finalTaxAmount: '',
+   
     status: '',
     taxReliefs: [
       {
@@ -84,14 +84,41 @@ const EditTaxRelief = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
+    // Basic validation
+    if (
+      !taxRelief.userID.trim() ||
+      !taxRelief.status ||
+      Number(taxRelief.income) <= 0 ||
+      Number(taxRelief.deduction) < 0 ||
+      !Array.isArray(taxRelief.taxReliefs) ||
+      taxRelief.taxReliefs.length === 0 ||
+      taxRelief.taxReliefs.some(
+        (entry) =>
+          !entry.taxReliefID?.trim() ||
+          !entry.taxReliefDescription?.trim() ||
+          Number(entry.reliefAmount) <= 0
+      )
+    ) {
+      setError('Please fill in all required fields. All amounts must be positive numbers.');
+      setLoading(false);
+      return;
+    }
+  
     try {
-      
-      await axios.post(`http://localhost:5559/taxRelief/${id}`, taxRelief);
+      await axios.put(`http://localhost:5559/taxRelief/${id}`, {
+        ...taxRelief,
+        income: Number(taxRelief.income),
+        deduction: Number(taxRelief.deduction),
+        taxReliefs: taxRelief.taxReliefs.map((entry) => ({
+          ...entry,
+          reliefAmount: Number(entry.reliefAmount),
+        }))
+      });
       navigate('/taxRelief');
     } catch (err) {
-      setError('Failed to create tax relief. Please try again.');
-      console.error('Error creating tax relief:', err);
+      setError('Failed to update tax relief. Please try again.');
+      console.error('Error updating tax relief:', err);
     } finally {
       setLoading(false);
     }
@@ -101,7 +128,7 @@ const EditTaxRelief = () => {
     <Dashboard>
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
         <div className="bg-white p-8 rounded-lg shadow-lg w-[28rem] backdrop-blur-lg">
-          <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">Add Tax Relief</h2>
+          <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">Edit Tax Relief</h2>
           {error && <p className="mb-3 text-center text-red-500">{error}</p>}
           <form onSubmit={handleSubmit} className="space-y-4">
             
@@ -175,15 +202,7 @@ const EditTaxRelief = () => {
                 Add Another Entry
               </button>
             </div>
-            <input
-              type="number"
-              name="finalTaxAmount"
-              placeholder="Final Tax Amount"
-              className="w-full p-3 border border-gray-300 rounded"
-                value={taxRelief.finalTaxAmount}
-              onChange={handleChange}
-              required
-            />
+           
             <select
               name="status"
               className="w-full p-3 border border-gray-300 rounded"
@@ -191,6 +210,7 @@ const EditTaxRelief = () => {
               required
             >
               <option value="">Select Status</option>
+              <option value="paid">Pending</option>
               <option value="paid">Paid</option>
               <option value="not paid">Not Paid</option>
             </select>
