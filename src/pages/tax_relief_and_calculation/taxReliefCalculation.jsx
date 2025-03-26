@@ -9,6 +9,7 @@ import DeleteTaxRelief from './deleteTaxRelief';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+
 const TaxReliefCalculation = () => { 
   const [taxReliefs, setTaxReliefs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -183,6 +184,7 @@ const TaxReliefCalculation = () => {
       ) : (
         <div className='p-4 overflow-auto bg-white rounded-lg shadow-md'>
           <div className='flex justify-end gap-2 pt-2 pb-4'>
+            
             <input
           type='text'
           placeholder='Search by Year'

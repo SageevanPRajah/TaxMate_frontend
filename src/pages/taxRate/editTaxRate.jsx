@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'; 
 import axios from 'axios';
 import Dashboard from '../../components/Dashboard';
 import { useNavigate } from 'react-router-dom';
 
 const EditTaxRate = () => {
   const [slabs, setSlabs] = useState([]);
+  const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     axios.get('http://localhost:5559/taxRate')
-      .then(res => setSlabs(res.data))
+      .then(res => {
+        setSlabs(res.data);
+        setErrors(res.data.map(() => ({})));
+      })
       .catch(err => console.error(err));
   }, []);
 
@@ -17,9 +21,41 @@ const EditTaxRate = () => {
     const updated = [...slabs];
     updated[index][field] = value;
     setSlabs(updated);
+
+    // Clear error message for the field being updated
+    const newErrors = [...errors];
+    if (newErrors[index]) {
+      newErrors[index][field] = '';
+      setErrors(newErrors);
+    }
+  };
+
+  const validateSlabs = () => {
+    let isValid = true;
+    const errorsArray = slabs.map((slab) => {
+      const errorObj = {};
+      if (!slab.incomeTaxSlab || slab.incomeTaxSlab.trim() === '') {
+        errorObj.incomeTaxSlab = 'Income Slab is required';
+        isValid = false;
+      }
+      if (slab.taxRate === '' || isNaN(slab.taxRate)) {
+        errorObj.taxRate = 'Tax Rate must be a valid number';
+        isValid = false;
+      } else if (Number(slab.taxRate) < 0 || Number(slab.taxRate) > 100) {
+        errorObj.taxRate = 'Tax Rate must be between 0 and 100';
+        isValid = false;
+      }
+      return errorObj;
+    });
+    setErrors(errorsArray);
+    return isValid;
   };
 
   const handleSave = async () => {
+    if (!validateSlabs()) {
+      alert('Please fix validation errors before saving.');
+      return;
+    }
     try {
       await axios.put('http://localhost:5559/taxRate', slabs);
       alert('Tax slabs updated successfully');
@@ -30,28 +66,48 @@ const EditTaxRate = () => {
     }
   };
 
+ 
+
   return (
     <Dashboard>
       <h1 className="mb-4 text-3xl font-bold">Edit Tax Rate Slabs</h1>
       {slabs.map((slab, index) => (
-        <div key={slab._id} className="flex gap-4 mb-2">
-          <input
-            type="text"
-            value={slab.incomeTaxSlab}
-            onChange={(e) => handleChange(index, 'incomeTaxSlab', e.target.value)}
-            className="w-1/2 p-2 border rounded"
-          />
-          <input
-            type="number"
-            value={slab.taxRate}
-            onChange={(e) => handleChange(index, 'taxRate', e.target.value)}
-            className="w-1/4 p-2 border rounded"
-          />
+        <div key={slab._id} className="flex flex-col gap-2 mb-2">
+          <div className="flex gap-4">
+            <div className="w-1/2">
+              <input
+                type="text"
+                value={slab.incomeTaxSlab}
+                onChange={(e) => handleChange(index, 'incomeTaxSlab', e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              {errors[index] && errors[index].incomeTaxSlab && (
+                <p className="text-sm text-red-500">{errors[index].incomeTaxSlab}</p>
+              )}
+            </div>
+            <div className="w-1/4">
+              <input
+                type="number"
+                value={slab.taxRate}
+                onChange={(e) => handleChange(index, 'taxRate', e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              {errors[index] && errors[index].taxRate && (
+                <p className="text-sm text-red-500">{errors[index].taxRate}</p>
+              )}
+            </div>
+          </div>
         </div>
       ))}
-      <button onClick={handleSave} className="px-4 py-2 mt-4 text-white bg-blue-600 rounded hover:bg-blue-800">
-        Save All Changes
-      </button>
+      <div className="flex gap-4 mt-4">
+       
+        <button 
+          onClick={handleSave} 
+          className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-800"
+        >
+          Save All Changes
+        </button>
+      </div>
     </Dashboard>
   );
 };

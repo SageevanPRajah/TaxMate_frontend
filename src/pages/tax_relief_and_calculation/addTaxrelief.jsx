@@ -149,7 +149,7 @@ const AddTaxRelief = () => {
               required
             >
               <option value="" disabled>Select Status</option>
-              <option value="paid">Pending</option>
+              <option value="pending">Pending</option>
               <option value="paid">Paid</option>
               <option value="not paid">Not Paid</option>
             </select>
