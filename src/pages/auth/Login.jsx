@@ -47,7 +47,15 @@ const Login = () => {
   };
 
   return (
-    <Dashboard>
+    <div
+      className="w-screen h-screen flex flex-col"
+      style={{
+        backgroundImage: "url('/backrd4.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] ">
         <div className="bg-white p-10 rounded-lg shadow-xl w-[28rem] backdrop-blur-lg">
           <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Login</h2>
@@ -142,7 +150,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-    </Dashboard>
+    </div>
   );
 };
 

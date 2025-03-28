@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard.jsx';
@@ -71,8 +71,8 @@ const EditProduct = () => {
     <Dashboard>
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
         <div className="bg-white p-8 rounded-lg shadow-lg w-[28rem] backdrop-blur-lg">
-          <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Edit Product</h2>
-          {error && <p className="text-red-500 text-center mb-3">{error}</p>}
+          <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">Edit Product</h2>
+          {error && <p className="mb-3 text-center text-red-500">{error}</p>}
 
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-4">
@@ -88,7 +88,7 @@ const EditProduct = () => {
               ))}
             </div>
 
-            <button type="submit" className="mt-4 w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all" disabled={loading}>
+            <button type="submit" className="w-full py-3 mt-4 font-semibold text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700" disabled={loading}>
               {loading ? 'Updating...' : 'Update Product'}
             </button>
           </form>
