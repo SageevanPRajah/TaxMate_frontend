@@ -102,7 +102,7 @@ const TaxReliefCalculation = () => {
           : reliefDescriptions;
   
         const rowData = [
-          tax.userID,
+          
           tax.year,
           tax.income,
           tax.deduction,
@@ -201,7 +201,7 @@ const TaxReliefCalculation = () => {
           <table className='w-full border-collapse'>
             <thead>
               <tr className='bg-gray-200'>
-                <th className='p-3 text-left'>User</th>
+               
                 <th className='p-3 text-left'>Year</th>
                 <th className='p-3 text-left'>Income</th>
                 <th className='p-3 text-left'>Deduction</th>
@@ -218,7 +218,7 @@ const TaxReliefCalculation = () => {
 
                 return (
                   <tr key={tax._id || index} className='border-b'>
-                    <td className='p-3'>{tax.userID}</td>
+                   
                     <td className='p-3'>{tax.year}</td>
                     <td className='p-3'>{tax.income}</td>
                     <td className='p-3'>{tax.deduction}</td>

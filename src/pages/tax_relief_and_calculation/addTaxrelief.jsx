@@ -101,15 +101,7 @@ const AddTaxRelief = () => {
           {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
             {/* User ID (required) */}
-            <input
-              type="text"
-              name="userID"
-              placeholder="User ID"
-              className="w-full p-2 mb-2 border border-gray-300 rounded"
-              value={taxRelief.userID}
-              onChange={handleChange}
-              required
-            />
+           
             {/* Optional: Year */}
             <input
               type="text"
@@ -119,16 +111,8 @@ const AddTaxRelief = () => {
               value={taxRelief.year}
               onChange={handleChange}
             />
-            {/* Income (required) */}
-            <input
-              type="number"
-              name="income"
-              placeholder="Income"
-              className="w-full p-2 mb-2 border border-gray-300 rounded"
-              value={taxRelief.income}
-              onChange={handleChange}
-              required
-            />
+        
+            
             {/* Deduction (required) */}
             <input
               type="number"
