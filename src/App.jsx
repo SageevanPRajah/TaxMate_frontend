@@ -58,9 +58,9 @@ const App = () => {
        {/** Liabilities */}    
       <Route path="/liabilities" element={<IndexLiabilities />} />
       <Route path="/liabilities/create" element={<CreateLiabilities />} />
-      { <Route path="/liabilities/detail/:id" element={<ViewLiabilities />} />}
+      <Route path="/liabilities/detail/:id" element={<ViewLiabilities />} />
       <Route path="/liabilities/edit/:id" element={<EditLiabilities />} />
-      { <Route path="/liabilities/delete/:id" element={<DeleteLiabilities />} /> }
+      <Route path="/liabilities/delete/:id" element={<DeleteLiabilities />} />
 
       
     </Routes>

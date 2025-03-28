@@ -23,15 +23,25 @@ const CreateAsset = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         
+        // Asset ID validation - only allow positive whole numbers
+        if (name === 'assetID') {
+            // Only allow digits
+            const digitsOnly = /^\d*$/;
+            if (!digitsOnly.test(value)) return;
+            
+            // Prevent negative numbers
+            if (value < 0) return;
+            
+            // Remove any decimal points
+            const wholeNumber = value.split('.')[0];
+            
+            setAsset(prev => ({ ...prev, [name]: wholeNumber }));
+            return;
+        }
+        
         // Prevent negative numbers for specific fields
         if (name === 'assetValue' || name === 'percentage') {
             if (value < 0) return;
-        }
-
-        // Asset ID validation - only allow alphanumeric characters
-        if (name === 'assetID') {
-            const alphanumericRegex = /^[a-zA-Z0-9]*$/;
-            if (!alphanumericRegex.test(value)) return;
         }
 
         setAsset((prev) => ({ ...prev, [name]: value }));
@@ -100,15 +110,21 @@ const CreateAsset = () => {
                             <div className='grid grid-cols-1 gap-4'>
                                 <div className="relative">
                                     <input 
-                                        type='text' 
+                                        type='number'
                                         name='assetID' 
-                                        placeholder='Asset ID (Alphanumeric only)' 
+                                        placeholder='Asset ID (Numbers only)' 
                                         className='p-3 border border-gray-300 rounded w-full' 
                                         onChange={handleChange} 
                                         value={asset.assetID}
                                         required 
-                                        pattern="[a-zA-Z0-9]+"
-                                        title="Only alphanumeric characters are allowed"
+                                        min="0"
+                                        step="1"
+                                        onKeyDown={(e) => {
+                                            // Prevent negative sign, decimal point, and scientific notation
+                                            if (e.key === '-' || e.key === '.' || e.key === 'e' || e.key === 'E') {
+                                                e.preventDefault();
+                                            }
+                                        }}
                                     />
                                     <span className="absolute right-3 top-3 text-gray-500 text-xs">Required</span>
                                 </div>
@@ -121,25 +137,27 @@ const CreateAsset = () => {
                                     onChange={handleChange} 
                                     required 
                                 />
+<div className="flex items-center border border-gray-300 rounded w-full overflow-hidden">
+    <span className="px-3 text-gray-500 bg-gray-100">Rs.</span>
+    <input 
+        type="number" 
+        name="assetValue" 
+        placeholder="Asset Value" 
+        className="p-3 w-full outline-none" 
+        onChange={handleChange} 
+        required 
+        min="0" 
+        step="1" // restricts to whole numbers
+        onKeyDown={(e) => {
+            // Disallow 'e', 'E', '-', and '.' for integer-only input
+            if (['e', 'E', '-', '.'].includes(e.key)) {
+                e.preventDefault();
+            }
+        }}
+    />
+</div>
 
-                                <div className="relative">
-                                    <input 
-                                        type='number' 
-                                        name='assetValue' 
-                                        placeholder='Asset Value' 
-                                        className='p-3 border border-gray-300 rounded w-full' 
-                                        onChange={handleChange} 
-                                        required 
-                                        min="0"
-                                        step="0.01"
-                                        onKeyDown={(e) => {
-                                            if (e.key === '-' || e.key === 'e' || e.key === '.') {
-                                                e.preventDefault();
-                                            }
-                                        }}
-                                    />
-                                    <span className="absolute right-3 top-3 text-gray-500">Rs.</span>
-                                </div>
+
                                 
                                 {/* Category Dropdown */}
                                 <select
