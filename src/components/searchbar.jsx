@@ -36,4 +36,9 @@ SearchBar.propTypes = {
   setSearchResults: PropTypes.func.isRequired,
 };
 
+<<<<<<< HEAD
 export default SearchBar;
+=======
+export default SearchBar;
+
+>>>>>>> 3204de4df194f100e6c874cfdcacf5da0a1fd297

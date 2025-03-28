@@ -10,14 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@fullcalendar/daygrid": "^6.1.11",
     "@fullcalendar/interaction": "^6.1.11",
     "@fullcalendar/react": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.11",
-    "@mui/icons-material": "^5.15.16",
-    "@mui/material": "^5.15.16",
+    "@mui/icons-material": "^5.17.1",
+    "@mui/material": "^5.17.1",
     "axios": "^1.7.9",
     "compromise": "^14.14.4",
     "cors": "^2.8.5",

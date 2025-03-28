@@ -28,6 +28,18 @@ import EditTaxRate from './pages/taxRate/editTaxRate.jsx';
 import DeleteTaxRate from './pages/taxRate/deleteTaxRate.jsx';
 
 
+//Isuru
+//taxReliefCalculation
+import TaxReliefCalculation from './pages/tax_relief_and_calculation/taxReliefCalculation.jsx';
+import AddTaxRelief from './pages/tax_relief_and_calculation/addTaxrelief.jsx';
+import EditTaxRelief from './pages/tax_relief_and_calculation/editTaxRelife.jsx';
+import DeleteTaxRelief from './pages/tax_relief_and_calculation/deleteTaxRelief.jsx';
+
+//TaxRate
+import AddTaxRate from './pages/taxRate/addTaxRate.jsx';
+import EditTaxRate from './pages/taxRate/editTaxRate.jsx';
+import DeleteTaxRate from './pages/taxRate/deleteTaxRate.jsx';
+
 //Gihan  
 //Income
 import CreateIncome from './pages/income/CreateIncome.jsx';
@@ -123,7 +135,7 @@ const App = () => {
       <Route path="/liabilities/detail/:id" element={<ViewLiabilities />} />
       <Route path="/liabilities/edit/:id" element={<EditLiabilities />} />
       <Route path="/liabilities/delete/:id" element={<DeleteLiabilities />} /> 
-  
+
     </Routes>
   )
 }
