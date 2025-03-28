@@ -4,13 +4,6 @@ import {Routes, Route} from 'react-router-dom'
 //Common
 import Home from './pages/Home.jsx';
 
-//Product
-import IndexProduct from './pages/products/IndexProduct.jsx';
-import CreateProduct from './pages/products/CreateProduct.jsx';
-import ViewProduct from './pages/products/ViewProduct.jsx';
-import EditProduct from './pages/products/EditProduct.jsx';
-import DeleteProduct from './pages/products/DeleteProduct.jsx';
-
 //Auth
 import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
