@@ -16,6 +16,7 @@ import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
 import Profile from './pages/auth/Profile.jsx';
 import AuthSuccess from './pages/auth/AuthSuccess.jsx';
+import EditProfile from './pages/auth/EditProfile.jsx';
 
 //Isuru
 //taxReliefCalculation
@@ -69,11 +70,12 @@ const App = () => {
       <Route path="/product/detail/:id" element={<ViewProduct />} />
       <Route path="/product/edit/:id" element={<EditProduct />} />
       <Route path="/product/delete/:id" element={<DeleteProduct />} />
-     
+        
       {/** Auth */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/profile/edit" element={<EditProfile />} />
       <Route path="/auth-success" element={<AuthSuccess />} />
 
 
