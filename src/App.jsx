@@ -21,12 +21,11 @@ import IndexAssets  from './pages/assets/IndexAssets.jsx';
 import CreateAssets from './pages/assets/CreateAssets.jsx';
 import ViewAssets from './pages/assets/ViewAssets.jsx';
 import EditAssets from './pages/assets/EditAssets.jsx';
-import DeleteAssets from './pages/assets/DeleteAssets.jsx';
 
 
 // liabilities
 import IndexLiabilities from './pages/liabilities/IndexLiabilities.jsx';
-import CreateLiabilities from './pages/liabilities/CreateLiabilities.jsx';
+import CreateLiabilities from './pages/liabilities/CreateLiability.jsx';
 import ViewLiabilities from './pages/liabilities/ViewLiabilities.jsx';
 import EditLiabilities from './pages/liabilities/EditLiabilities.jsx';
 import DeleteLiabilities from './pages/liabilities/DeleteLiabilities.jsx';
@@ -55,7 +54,6 @@ const App = () => {
       <Route path="/assets/create" element={<CreateAssets />} />
       <Route path="/assets/detail/:id" element={<ViewAssets />} />
       <Route path="/assets/edit/:id" element={<EditAssets />} />
-      <Route path="/assets/delete/:id" element={<                                                                                              DeleteAssets />} />
 
        {/** Liabilities */}    
       <Route path="/liabilities" element={<IndexLiabilities />} />

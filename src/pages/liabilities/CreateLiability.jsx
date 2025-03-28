@@ -1,36 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard.jsx';
 
-const EditLiabilities = () => {
+const CreateLiability = () => {
     const navigate = useNavigate();
-    const { id } = useParams();
     const [liability, setLiability] = useState({
         liabilityID: '',
         liabilityName: '',
         type: '',
         amount: '',
-        dueDate: '',
+        dueDate: '', 
         status: '',
         creditor: ''
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        setLoading(true);
-        axios.get(`http://localhost:5559/liability/${id}`)
-            .then((response) => {
-                setLiability(response.data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                setError('Error fetching liability details');
-                console.log(error);
-                setLoading(false);
-            });
-    }, [id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,11 +29,15 @@ const EditLiabilities = () => {
         setError(null);
 
         try {
-            await axios.put(`http://localhost:5559/liability/${id}`, liability);
+            await axios.post('http://localhost:5559/liability', liability, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             navigate('/liabilities');
         } catch (error) {
-            setError('Failed to update liability. Please try again.');
-            console.error('Error updating liability:', error);
+            setError('Failed to create liability. Please try again.');
+            console.error('Error creating liability:', error);
         } finally {
             setLoading(false);
         }
@@ -57,7 +47,7 @@ const EditLiabilities = () => {
         <Dashboard>
             <div className='flex items-center justify-center min-h-[calc(100vh-4rem)]'>
                 <div className='bg-white p-8 rounded-lg shadow-lg w-[28rem] backdrop-blur-lg'>
-                    <h2 className='text-3xl font-bold text-center mb-6 text-gray-800'>Edit Liability</h2>
+                    <h2 className='text-3xl font-bold text-center mb-6 text-gray-800'>Create Liability</h2>
                     {error && <p className='text-red-500 text-center mb-3'>{error}</p>}
 
                     <form onSubmit={handleSubmit}>
@@ -66,7 +56,6 @@ const EditLiabilities = () => {
                                 type='text' 
                                 name='liabilityID' 
                                 placeholder='Liability ID' 
-                                value={liability.liabilityID}
                                 className='p-3 border border-gray-300 rounded' 
                                 onChange={handleChange} 
                                 required 
@@ -75,7 +64,6 @@ const EditLiabilities = () => {
                                 type='text' 
                                 name='liabilityName' 
                                 placeholder='Liability Name' 
-                                value={liability.liabilityName}
                                 className='p-3 border border-gray-300 rounded' 
                                 onChange={handleChange} 
                                 required 
@@ -100,7 +88,6 @@ const EditLiabilities = () => {
                                 type='text' 
                                 name='amount' 
                                 placeholder='Amount' 
-                                value={liability.amount}
                                 className='p-3 border border-gray-300 rounded' 
                                 onChange={handleChange} 
                                 required 
@@ -110,7 +97,6 @@ const EditLiabilities = () => {
                                 type='date' 
                                 name='dueDate' 
                                 placeholder='Due Date' 
-                                value={liability.dueDate}
                                 className='p-3 border border-gray-300 rounded' 
                                 onChange={handleChange} 
                                 required 
@@ -134,7 +120,6 @@ const EditLiabilities = () => {
                                 type='text' 
                                 name='creditor' 
                                 placeholder='Creditor Name' 
-                                value={liability.creditor}
                                 className='p-3 border border-gray-300 rounded' 
                                 onChange={handleChange} 
                                 required 
@@ -146,7 +131,7 @@ const EditLiabilities = () => {
                             className='mt-4 w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all' 
                             disabled={loading}
                         >
-                            {loading ? 'Updating...' : 'Update'}
+                            {loading ? 'Submitting...' : 'Submit'}
                         </button>
                     </form>
                 </div>
@@ -155,4 +140,4 @@ const EditLiabilities = () => {
     );
 };
 
-export default EditLiabilities;
+export default CreateLiability;

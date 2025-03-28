@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Dashboard from '../../components/Dashboard';
@@ -13,9 +13,7 @@ const ViewAssets = () => {
     useEffect(() => {
         const fetchAsset = async () => {
             try {
-                console.log("Fetching asset with ID:", id);
                 const response = await axios.get(`http://localhost:5559/asset/${id}`);
-                console.log("Fetched asset:", response.data);
                 setAsset(response.data);
             } catch (error) {
                 console.error("Error fetching asset:", error);
@@ -46,24 +44,32 @@ const ViewAssets = () => {
                                     <strong className="text-gray-700">Asset ID:</strong> {asset.assetID}
                                 </p>
                                 <p className="text-lg">
-                                    <strong className="text-gray-700">Name:</strong> {asset.name}
+                                    <strong className="text-gray-700">Asset Name:</strong> {asset.assetName}
+                                </p>
+                                <p className="text-lg">
+                                <strong className="text-gray-700">Asset Value:</strong> Rs. {asset.assetValue}
                                 </p>
                                 <p className="text-lg">
                                     <strong className="text-gray-700">Category:</strong> {asset.category}
                                 </p>
                                 <p className="text-lg">
-                                    <strong className="text-gray-700">Value:</strong> ${asset.value}
+                                    <strong className="text-gray-700">Change Type:</strong> {asset.changeType}
                                 </p>
                                 <p className="text-lg">
-                                    <strong className="text-gray-700">Quantity:</strong> {asset.quantity}
+                                    <strong className="text-gray-700">Percentage:</strong> {asset.percentage}%
                                 </p>
-                            </div>
-
-                            <div className="p-4 rounded-lg bg-gray-50 shadow-md">
-                                <h3 className="text-xl font-semibold text-gray-800">Location</h3>
-                                <p className="text-lg">{asset.location.number}, {asset.location.street}</p>
-                                <p className="text-lg">{asset.location.city}, {asset.location.country}</p>
-                                <p className="text-lg">{asset.location.postalCode}</p>
+                                <p className="text-lg">
+                                    <strong className="text-gray-700">Amount:</strong> Rs. {asset.amount}
+                                </p>
+                                <p className="text-lg">
+                                    <strong className="text-gray-700">Date:</strong> {new Date(asset.date).toLocaleDateString()}
+                                </p>
+                                <p className="text-lg">
+                                    <strong className="text-gray-700">Created:</strong> {new Date(asset.createdAt).toLocaleDateString()}
+                                </p>
+                                <p className="text-lg">
+                                    <strong className="text-gray-700">Last Updated:</strong> {new Date(asset.updatedAt).toLocaleDateString()}
+                                </p>
                             </div>
 
                             <div className="flex justify-between mt-6">
@@ -74,8 +80,8 @@ const ViewAssets = () => {
                                     Back
                                 </button>
                                 <button
-                                    className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-lg font-semibold shadow-md transition-all"
-                                    onClick={() => navigate(`/asset/edit/${asset._id}`)}
+                                    className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg font-semibold shadow-md transition-all"
+                                    onClick={() => navigate(`/assets/edit/${asset._id}`)}
                                 >
                                     Edit Asset
                                 </button>
