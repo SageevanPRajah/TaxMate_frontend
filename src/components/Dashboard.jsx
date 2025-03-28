@@ -58,7 +58,7 @@ const Dashboard = ({ children }) => {
             <Link to='/income' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsGraphUpArrow className="w-6 h-6" /> {!isCollapsed && 'Income'}
             </Link>
-            <Link to='/expenses' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
+            <Link to='/expense' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsGraphDownArrow className="w-6 h-6" /> {!isCollapsed && 'Expenses'}
             </Link>
             <Link to='/assets' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
