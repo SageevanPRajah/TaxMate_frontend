@@ -5,7 +5,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import Dashboard from "../../components/Dashboard";
 import TermsCondition from "./TermsCondition.jsx";
 
 const Register = () => {
@@ -21,18 +20,17 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Update form fields
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // On form submission, validate and show the Terms modal
   const handleRegister = (e) => {
     e.preventDefault();
     setError(null);
@@ -43,7 +41,6 @@ const Register = () => {
     setShowTermsModal(true);
   };
 
-  // When user accepts the terms, complete the registration
   const handleAcceptTerms = async () => {
     setShowTermsModal(false);
     setLoading(true);
@@ -54,7 +51,6 @@ const Register = () => {
         formData
       );
       if (response.data.success) {
-        // Log the user in with the returned token and user data
         login(response.data.token, response.data.user, true);
         navigate("/profile");
       } else {
@@ -73,7 +69,6 @@ const Register = () => {
     }
   };
 
-  // Cancel modal and go back to registration form
   const handleCancelTerms = () => {
     setShowTermsModal(false);
   };
@@ -87,122 +82,122 @@ const Register = () => {
   };
 
   return (
-    <Dashboard>
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <div className="bg-white/90 p-10 rounded-lg shadow-xl w-[28rem] backdrop-blur-lg">
-          <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-            Register
-          </h2>
-          {error && <p className="text-red-500 text-center mb-3">{error}</p>}
+    <div
+      className="w-screen h-screen flex flex-col"
+      style={{
+        backgroundImage: "url('/backrd4.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="flex items-center justify-center flex-grow">
+        <div className="bg-white/90 p-10 rounded-lg shadow-xl w-[28rem] backdrop-blur-md">
+          {error && <p className="text-red-600 text-center mb-3">{error}</p>}
 
-          {/* Social Login Buttons */}
-          <div className="flex flex-col gap-3 mb-5">
-            <button 
+          <div className="flex justify-between mb-4 gap-2">
+            <button
               onClick={handleGoogleLogin}
-              className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition-all">
-              <FcGoogle className="w-6 h-6 mr-2" />
-              Continue with Google
+              className="flex items-center justify-center flex-1 py-2 border border-gray-300 rounded-lg bg-white text-black shadow-sm hover:bg-gray-50"
+            >
+              <FcGoogle className="w-5 h-5 mr-2" />
+              Google
             </button>
-            <button 
+            <button
               onClick={handlefaceBookLogin}
-              className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
-              <FaFacebook className="w-6 h-6 mr-2" />
-              Continue with Facebook
+              className="flex items-center justify-center flex-1 py-2 border border-gray-300 rounded-lg bg-white text-black shadow-sm hover:bg-gray-50"
+            >
+              <FaFacebook className="w-5 h-5 mr-2 text-blue-600" />
+              Facebook
             </button>
           </div>
 
-          <div className="relative flex items-center mb-4">
-            <div className="flex-grow border-t border-gray-300"></div>
-            <span className="px-3 text-gray-500 text-sm">or</span>
-            <div className="flex-grow border-t border-gray-300"></div>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex-grow h-px bg-gray-300"></div>
+            <span className="text-gray-500 text-sm">or</span>
+            <div className="flex-grow h-px bg-gray-300"></div>
           </div>
 
-          <form onSubmit={handleRegister}>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium">
-                First Name
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <input
+              type="date"
+              name="dateOfBirth"
+              value={formData.dateOfBirth}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
 
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium">
-                Last Name
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dateOfBirth"
-                className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.dateOfBirth}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            {/* Password Field */}
-            <div className="mb-4 relative">
-              <label className="block text-gray-700 font-medium">Password</label>
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none pr-12"
+                placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
                 required
+                className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
+              <span
+                className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </span>
             </div>
 
-            {/* Confirm Password Field */}
-            <div className="mb-4 relative">
-              <label className="block text-gray-700 font-medium">
-                Confirm Password
-              </label>
+            <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
-                className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none pr-12"
+                placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
+                className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
+              <span
+                className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? (
+                  <AiOutlineEyeInvisible />
+                ) : (
+                  <AiOutlineEye />
+                )}
+              </span>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
               disabled={loading}
             >
               {loading ? "Registering..." : "Register"}
@@ -221,15 +216,16 @@ const Register = () => {
         </div>
       </div>
 
-      {/* Render the imported TermsCondition as a modal overlay */}
       {showTermsModal && (
-        <TermsCondition
-          onAccept={handleAcceptTerms}
-          onCancel={handleCancelTerms}
-          loading={loading}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
+          <TermsCondition
+            onAccept={handleAcceptTerms}
+            onCancel={handleCancelTerms}
+            loading={loading}
+          />
+        </div>
       )}
-    </Dashboard>
+    </div>
   );
 };
 
