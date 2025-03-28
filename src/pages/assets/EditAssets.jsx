@@ -14,7 +14,8 @@ const EditAssets = () => {
         changeType: '',
         percentage: '',
         amount: '',
-        date: ''
+        date: '',
+        description: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -130,6 +131,18 @@ const EditAssets = () => {
                                     placeholder='Enter Asset Name' 
                                     value={asset.assetName || ''}
                                     className='p-3 border border-gray-300 rounded w-full' 
+                                    onChange={handleChange} 
+                                    required 
+                                />
+                            </div>
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
+                                <textarea 
+                                    name='description' 
+                                    placeholder='Enter Asset Description' 
+                                    value={asset.description || ''}
+                                    className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
                                     onChange={handleChange} 
                                     required 
                                 />
