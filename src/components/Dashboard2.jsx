@@ -9,7 +9,7 @@ const Dashboard2 = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className='h-screen flex flex-col w-full'>
+    <div className='min-h-screen flex flex-col w-full'>
       {/* Header */}
       <header className='bg-blue-900 text-white py-4 px-8 text-2xl font-bold flex justify-between items-center shadow-md w-full'>
         <div className='flex items-center gap-6'>
@@ -19,7 +19,7 @@ const Dashboard2 = ({ children }) => {
           <Link to='/chat' className='hover:underline'>
             <BsRobot className='w-8 h-8' />
           </Link>
-          <Link to='/income' className='hover:underline'>
+          <Link to='/notification' className='hover:underline'>
             <AiOutlineBell className='w-8 h-8' />
           </Link>
           {isAuthenticated ? (
@@ -45,7 +45,7 @@ const Dashboard2 = ({ children }) => {
       <div className='flex flex-1 w-full'>
         
         {/* Content */}
-        <main className='p-6 bg-gray-100 flex-1 overflow-y-auto bg-cover bg-center'>
+        <main className="bg-blue-50 w-full">
           {children}
         </main>
       </div>

@@ -19,7 +19,7 @@ const Dashboard = ({ children }) => {
           <Link to='/chat' className='hover:underline'>
             <BsRobot className='w-8 h-8' />
           </Link>
-          <Link to='/income' className='hover:underline'>
+          <Link to='/notification' className='hover:underline'>
             <AiOutlineBell className='w-8 h-8' />
           </Link>
           {isAuthenticated ? (
@@ -52,9 +52,6 @@ const Dashboard = ({ children }) => {
             <img src='/public/logo.png' alt='Logo' className={`${isCollapsed ? 'w-[70%]' : 'w-[50%]'} h-auto mx-auto rounded-full transition-all duration-300`} />
           </Link>
           <nav className='flex flex-col gap-3 w-full'>
-            <Link to='/product' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
-              <BsBox className="w-6 h-6" /> {!isCollapsed && 'Product'}
-            </Link>
             <Link to='/income' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
               <BsGraphUpArrow className="w-6 h-6" /> {!isCollapsed && 'Income'}
             </Link>
@@ -67,10 +64,10 @@ const Dashboard = ({ children }) => {
             <Link to='/liabilities' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
               <BsCreditCard2BackFill className="w-6 h-6" /> {!isCollapsed && 'Liabilities'}
             </Link>
-            <Link to='/' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
+            <Link to='/taxRelief' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
               <BsCashCoin className="w-6 h-6" /> {!isCollapsed && 'Tax Payment'}
             </Link>
-            <Link to='/' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
+            <Link to='/taxrate' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsPercent className="w-6 h-6" /> {!isCollapsed && 'Tax Rate'}
             </Link>
           </nav>
