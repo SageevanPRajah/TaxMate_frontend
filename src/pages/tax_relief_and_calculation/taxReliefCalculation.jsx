@@ -137,17 +137,7 @@ const TaxReliefCalculation = () => {
       <h2 className='text-3xl font-bold'>Tax Rate Slabs</h2>
       <div className='p-4 mb-6 bg-white rounded-lg shadow-md'>
         <div className='flex justify-end gap-2 pt-2 pb-4'>
-          <div className='flex gap-2'>
-            <Link to='/taxRelief/addTaxRate' className='flex items-center px-4 py-2 text-white bg-green-600 rounded hover:bg-green-800'>
-              <MdOutlineAddBox className='mr-2' /> Add Slab
-            </Link>
-            <Link to={`/taxRelief/editTaxrate/:id`} className='flex items-center px-4 py-2 text-white bg-orange-500 rounded hover:bg-orange-800'>
-              <AiOutlineEdit className='mr-2' /> Edit Slab
-            </Link>
-            <Link to={`/taxRelief/deleteTaxRate/:id`} className='flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-800'>
-              <MdOutlineDelete className='mr-2' /> Delete Slabs
-            </Link>
-          </div>
+          
         </div>
 
         <table className='w-full border-collapse'>

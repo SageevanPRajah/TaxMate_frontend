@@ -10,38 +10,47 @@ const AddTaxRelief = () => {
     year: '',
     income: '',
     deduction: '',
-    
     status: '',
-    taxReliefs: [] // Must be non-empty when submitting!
+    taxReliefs: [], 
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); 
+  const [userIdError, setUserIdError] = useState(''); 
   const [loading, setLoading] = useState(false);
 
-  // Update top-level fields (userID, year, income, etc.)
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTaxRelief((prev) => ({ ...prev, [name]: value }));
+
+    
+    if (name === 'userID') {
+      const userIdPattern = /^U/; 
+      if (!userIdPattern.test(value) && value.length > 0) {
+        setUserIdError("User ID should start with 'U'");
+      } else {
+        setUserIdError(''); 
+      }
+    }
   };
 
-  // Update individual tax relief entries in the array
+  
   const handleTaxReliefEntryChange = (index, field, value) => {
     const updatedEntries = [...taxRelief.taxReliefs];
     updatedEntries[index][field] = value;
     setTaxRelief((prev) => ({ ...prev, taxReliefs: updatedEntries }));
   };
 
-  // Add a new tax relief entry (object with taxReliefID, taxReliefDescription, and reliefAmount)
+
   const addTaxReliefEntry = () => {
     setTaxRelief((prev) => ({
       ...prev,
       taxReliefs: [
         ...prev.taxReliefs,
-        { taxReliefID: '', taxReliefDescription: '', reliefAmount: '' }
-      ]
+        { taxReliefID: '', taxReliefDescription: '', reliefAmount: '' },
+      ],
     }));
   };
 
-  // Remove a tax relief entry (if more than one exists)
   const removeTaxReliefEntry = (index) => {
     const updatedEntries = taxRelief.taxReliefs.filter((_, i) => i !== index);
     setTaxRelief((prev) => ({ ...prev, taxReliefs: updatedEntries }));
@@ -51,7 +60,15 @@ const AddTaxRelief = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-  
+
+   
+    const userIdPattern = /^U/;
+    if (!userIdPattern.test(taxRelief.userID)) {
+      setError("User ID must start with 'U'");
+      setLoading(false);
+      return;
+    }
+
     if (
       !taxRelief.userID.trim() ||
       !taxRelief.status ||
@@ -70,7 +87,7 @@ const AddTaxRelief = () => {
       setLoading(false);
       return;
     }
-  
+
     try {
       const payload = {
         ...taxRelief,
@@ -82,7 +99,7 @@ const AddTaxRelief = () => {
           reliefAmount: Number(entry.reliefAmount),
         })),
       };
-  
+
       await axios.post('http://localhost:5559/taxRelief', payload);
       navigate('/taxRelief');
     } catch (err) {
@@ -101,7 +118,19 @@ const AddTaxRelief = () => {
           {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
             {/* User ID (required) */}
-           
+            <div>
+              <input
+                type="text"
+                name="userID"
+                placeholder="User ID"
+                className="w-full p-2 mb-2 border border-gray-300 rounded"
+                value={taxRelief.userID}
+                onChange={handleChange}
+                required
+              />
+              {userIdError && <p className="mb-2 text-sm text-red-500">{userIdError}</p>}
+            </div>
+
             {/* Optional: Year */}
             <input
               type="text"
@@ -111,8 +140,7 @@ const AddTaxRelief = () => {
               value={taxRelief.year}
               onChange={handleChange}
             />
-        
-            
+
             {/* Deduction (required) */}
             <input
               type="number"
@@ -123,7 +151,7 @@ const AddTaxRelief = () => {
               onChange={handleChange}
               required
             />
-            
+
             {/* Status (required) */}
             <select
               name="status"
@@ -154,7 +182,9 @@ const AddTaxRelief = () => {
                   placeholder="Tax Relief Description"
                   className="w-full p-2 mb-2 border border-gray-300 rounded"
                   value={entry.taxReliefDescription}
-                  onChange={(e) => handleTaxReliefEntryChange(index, 'taxReliefDescription', e.target.value)}
+                  onChange={(e) =>
+                    handleTaxReliefEntryChange(index, 'taxReliefDescription', e.target.value)
+                  }
                   required
                 />
                 <input
