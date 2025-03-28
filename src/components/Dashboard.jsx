@@ -68,7 +68,6 @@ const Dashboard = ({ children }) => {
               <BsCashCoin className="w-6 h-6" /> {!isCollapsed && 'Tax Payment'}
             </Link>
             <Link to='/taxrate' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
-            <Link to='/taxrate' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsPercent className="w-6 h-6" /> {!isCollapsed && 'Tax Rate'}
             </Link>
           </nav>

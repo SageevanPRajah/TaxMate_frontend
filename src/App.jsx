@@ -26,19 +26,7 @@ import DeleteTaxRelief from './pages/tax_relief_and_calculation/deleteTaxRelief.
 import AddTaxRate from './pages/taxRate/addTaxRate.jsx';
 import EditTaxRate from './pages/taxRate/editTaxRate.jsx';
 import DeleteTaxRate from './pages/taxRate/deleteTaxRate.jsx';
-
-
-//Isuru
-//taxReliefCalculation
-import TaxReliefCalculation from './pages/tax_relief_and_calculation/taxReliefCalculation.jsx';
-import AddTaxRelief from './pages/tax_relief_and_calculation/addTaxrelief.jsx';
-import EditTaxRelief from './pages/tax_relief_and_calculation/editTaxRelife.jsx';
-import DeleteTaxRelief from './pages/tax_relief_and_calculation/deleteTaxRelief.jsx';
-
-//TaxRate
-import AddTaxRate from './pages/taxRate/addTaxRate.jsx';
-import EditTaxRate from './pages/taxRate/editTaxRate.jsx';
-import DeleteTaxRate from './pages/taxRate/deleteTaxRate.jsx';
+import TaxRate from './pages/taxRate/TaxRate.jsx';
 
 //Gihan  
 //Income
@@ -105,7 +93,8 @@ const App = () => {
       {/** TaxRate */}
       <Route path="/taxRelief/addTaxRate" element={<AddTaxRate />} />   
       <Route path="/taxRelief/editTaxRate/:id" element={<EditTaxRate />} />
-      <Route path="/taxRelief/deleteTaxRate/:id" element={<DeleteTaxRate />} />  
+      <Route path="/taxRelief/deleteTaxRate/:id" element={<DeleteTaxRate />} /> 
+      <Route path="/taxRate" element={<TaxRate />} /> 
 
       {/** Gihan */}
       {/** Income */}
