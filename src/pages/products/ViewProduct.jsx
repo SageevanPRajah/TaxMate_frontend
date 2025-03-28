@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Dashboard from '../../components/Dashboard';
@@ -31,17 +31,17 @@ const ViewProduct = () => {
     <Dashboard>
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-gradient-to-br ">
         <div className="bg-white/90 p-8 rounded-2xl shadow-2xl w-[35rem] backdrop-blur-lg border border-gray-300">
-          <h2 className="text-4xl font-extrabold text-center mb-6 text-gray-900 tracking-wide">
+          <h2 className="mb-6 text-4xl font-extrabold tracking-wide text-center text-gray-900">
             Product Details
           </h2>
 
           {loading ? (
             <p className="text-center text-gray-600 animate-pulse">Loading...</p>
           ) : error ? (
-            <p className="text-red-500 text-center font-medium">{error}</p>
+            <p className="font-medium text-center text-red-500">{error}</p>
           ) : (
             <div className="space-y-6">
-              <div className="p-4 rounded-lg bg-gray-50 shadow-md">
+              <div className="p-4 rounded-lg shadow-md bg-gray-50">
                 <p className="text-lg">
                   <strong className="text-gray-700">Product ID:</strong> {product.productID}
                 </p>
@@ -59,7 +59,7 @@ const ViewProduct = () => {
                 </p>
               </div>
 
-              <div className="p-4 rounded-lg bg-gray-50 shadow-md">
+              <div className="p-4 rounded-lg shadow-md bg-gray-50">
                 <h3 className="text-xl font-semibold text-gray-800">Address</h3>
                 <p className="text-lg">{product.address.number}, {product.address.street}</p>
                 <p className="text-lg">{product.address.city}, {product.address.country}</p>
@@ -68,13 +68,13 @@ const ViewProduct = () => {
 
               <div className="flex justify-between mt-6">
                 <button
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-6 rounded-lg font-semibold shadow-md transition-all"
+                  className="px-6 py-2 font-semibold text-gray-800 transition-all bg-gray-300 rounded-lg shadow-md hover:bg-gray-400"
                   onClick={() => navigate(-1)}
                 >
                   Back
                 </button>
                 <button
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-lg font-semibold shadow-md transition-all"
+                  className="px-6 py-2 font-semibold text-white transition-all bg-yellow-500 rounded-lg shadow-md hover:bg-yellow-600"
                   onClick={() => navigate(`/product/edit/${product._id}`)}
                 >
                   Edit Product

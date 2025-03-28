@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard.jsx';
@@ -56,8 +56,8 @@ const CreateProduct = () => {
     <Dashboard>
       <div className='flex items-center justify-center min-h-[calc(100vh-4rem)]'>
         <div className='bg-white p-8 rounded-lg shadow-lg w-[28rem] backdrop-blur-lg'>
-          <h2 className='text-3xl font-bold text-center mb-6 text-gray-800'>Create Product</h2>
-          {error && <p className='text-red-500 text-center mb-3'>{error}</p>}
+          <h2 className='mb-6 text-3xl font-bold text-center text-gray-800'>Create Product</h2>
+          {error && <p className='mb-3 text-center text-red-500'>{error}</p>}
 
           <form onSubmit={handleSubmit}>
             <div className='grid grid-cols-1 gap-4'>
@@ -75,7 +75,7 @@ const CreateProduct = () => {
               <input type='text' name='address.postalCode' placeholder='Postal Code' className='p-3 border border-gray-300 rounded' onChange={handleChange} required />
             </div>
 
-            <button type='submit' className='mt-4 w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all' disabled={loading}>
+            <button type='submit' className='w-full py-3 mt-4 font-semibold text-white transition-all bg-green-600 rounded-lg hover:bg-green-700' disabled={loading}>
               {loading ? 'Submitting...' : 'Submit'}
             </button>
           </form>
