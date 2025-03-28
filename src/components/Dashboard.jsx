@@ -9,13 +9,13 @@ const Dashboard = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className='h-screen flex flex-col w-full'>
+    <div className='flex flex-col w-full h-screen'>
       {/* Header */}
-      <header className='bg-blue-900 text-white py-4 px-8 text-2xl font-bold flex justify-between items-center shadow-md w-full'>
+      <header className='flex items-center justify-between w-full px-8 py-4 text-2xl font-bold text-white bg-blue-900 shadow-md'>
         <div className='flex items-center gap-6'>
           <span className='text-3xl font-extrabold tracking-wide'>TaxMate</span>
         </div>
-        <nav className='flex gap-6 items-center'>
+        <nav className='flex items-center gap-6'>
           <Link to='/chat' className='hover:underline'>
             <BsRobot className='w-8 h-8' />
           </Link>
@@ -45,21 +45,21 @@ const Dashboard = ({ children }) => {
       <div className='flex flex-1 w-full'>
         {/* Sidebar (Collapsible) */}
         <aside className={`bg-blue-800 text-white p-5 flex flex-col gap-4 shadow-lg items-center transition-all ${isCollapsed ? 'w-20' : 'w-[16%]'}`}>
-          <button onClick={() => setIsCollapsed(!isCollapsed)} className='text-white mb-4'>
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className='mb-4 text-white'>
             {isCollapsed ? <BsArrowRightCircle className='w-6 h-6' /> : <BsArrowLeftCircle className='w-6 h-6' />}
           </button>
           <Link to='/'>
             <img src='/public/logo.png' alt='Logo' className={`${isCollapsed ? 'w-[70%]' : 'w-[50%]'} h-auto mx-auto rounded-full transition-all duration-300`} />
           </Link>
-          <nav className='flex flex-col gap-3 w-full'>
-            <Link to='/product' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
+          <nav className='flex flex-col w-full gap-3'>
+            <Link to='/product' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsBox className="w-6 h-6" /> {!isCollapsed && 'Product'}
             </Link>
-            <Link to='/income' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
+            <Link to='/income' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsGraphUpArrow className="w-6 h-6" /> {!isCollapsed && 'Income'}
             </Link>
-            <Link to='/expense' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
-              <BsGraphDownArrow className="w-6 h-6" /> {!isCollapsed && 'Expense'}
+            <Link to='/expenses' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
+              <BsGraphDownArrow className="w-6 h-6" /> {!isCollapsed && 'Expenses'}
             </Link>
             <Link to='/assets' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
               <BsBank2 className="w-6 h-6" /> {!isCollapsed && 'Assets'}
@@ -67,10 +67,10 @@ const Dashboard = ({ children }) => {
             <Link to='/liabilities' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
               <BsCreditCard2BackFill className="w-6 h-6" /> {!isCollapsed && 'Liabilities'}
             </Link>
-            <Link to='/' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
+            <Link to='/taxRelief' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsCashCoin className="w-6 h-6" /> {!isCollapsed && 'Tax Payment'}
             </Link>
-            <Link to='/' className='p-3 border-2 border-orange-600 rounded-full backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-md shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105 transition-all duration-300 text-center flex items-center justify-center gap-4'>
+            <Link to='/taxrate' className='flex items-center justify-center gap-4 p-3 text-center transition-all duration-300 border-2 border-orange-600 rounded-full shadow-md backdrop-blur-md bg-white/10 hover:bg-white/20 shadow-orange-700/30 hover:shadow-orange-700/70 hover:scale-105'>
               <BsPercent className="w-6 h-6" /> {!isCollapsed && 'Tax Rate'}
             </Link>
           </nav>
