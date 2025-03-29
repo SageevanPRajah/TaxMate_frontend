@@ -101,14 +101,14 @@ const Register = () => {
               className="flex items-center justify-center flex-1 py-2 border border-gray-300 rounded-lg bg-white text-black shadow-sm hover:bg-gray-50"
             >
               <FcGoogle className="w-5 h-5 mr-2" />
-              Google
+              Google Login
             </button>
             <button
               onClick={handlefaceBookLogin}
               className="flex items-center justify-center flex-1 py-2 border border-gray-300 rounded-lg bg-white text-black shadow-sm hover:bg-gray-50"
             >
               <FaFacebook className="w-5 h-5 mr-2 text-blue-600" />
-              Facebook
+              Facebook Login
             </button>
           </div>
 
