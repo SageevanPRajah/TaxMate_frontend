@@ -5,8 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const DeleteTaxRate = () => {
   const [slabs, setSlabs] = useState([]);
-  const navigate = useNavigate(); // useNavigate returns a navigation function
-
+  const navigate = useNavigate(); 
   useEffect(() => {
     axios.get('http://localhost:5559/taxRate')
       .then(res => setSlabs(res.data))
@@ -17,9 +16,9 @@ const DeleteTaxRate = () => {
     if (!window.confirm("Are you sure you want to delete all slabs?")) return;
     try {
       await axios.delete('http://localhost:5559/taxRate');
-      // After deletion, navigate to /taxRelief using the navigate function
-      navigate('/taxRelief');
-      // Optionally, clear the state if needed
+    
+      navigate('/taxRate');
+      
       setSlabs([]);
     } catch (err) {
       console.error(err);

@@ -22,7 +22,7 @@ const EditTaxRate = () => {
     updated[index][field] = value;
     setSlabs(updated);
 
-    // Clear error message for the field being updated
+   
     const newErrors = [...errors];
     if (newErrors[index]) {
       newErrors[index][field] = '';

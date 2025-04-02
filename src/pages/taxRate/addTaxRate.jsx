@@ -18,7 +18,7 @@ const AddTaxRate = () => {
     updatedSlabs[index][field] = value;
     setSlabs(updatedSlabs);
 
-    // Clear error for the specific field when the user makes a change
+    
     const updatedErrors = [...errors];
     if (updatedErrors[index]) {
       updatedErrors[index][field] = '';
@@ -56,7 +56,7 @@ const AddTaxRate = () => {
     try {
       await axios.post('http://localhost:5559/taxRate', slabs);
       alert('Tax slabs added successfully');
-      navigate('/taxRelief');
+      navigate('/taxRate');
     } catch (error) {
       console.error(error);
       alert('Failed to add tax slabs');
@@ -65,7 +65,7 @@ const AddTaxRate = () => {
 
 
   const handleRemoveEmptySlabs = () => {
-    // Define an empty slab as one where both fields are empty
+    
     const filteredSlabs = slabs.filter(slab => {
       return !(slab.incomeTaxSlab.trim() === '' && (slab.taxRate === '' || slab.taxRate === null || slab.taxRate === undefined));
     });

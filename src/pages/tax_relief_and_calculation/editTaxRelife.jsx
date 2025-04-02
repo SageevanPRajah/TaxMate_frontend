@@ -141,15 +141,7 @@ const EditTaxRelief = () => {
               onChange={handleChange}
               required
             />
-            <input
-              type="number"
-              name="income"
-              placeholder="Income (ID)"
-              className="w-full p-3 border border-gray-300 rounded"
-              value={taxRelief.income}
-              onChange={handleChange}
-              required
-            />
+            
             <input
               type="number"
               name="deduction"
