@@ -6,16 +6,10 @@ import { MdOutlineAddBox, MdOutlineDelete } from 'react-icons/md';
 import Spinner from '../../components/Spinner';
 import Dashboard from '../../components/Dashboard';
 
-
-
-
 const TaxRate = () => { 
   
   const [taxRates, setTaxRates] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-
-  
 
   useEffect(() => {
     setLoading(true);
@@ -30,9 +24,7 @@ const TaxRate = () => {
       });
   }, []);
 
-  
-
-  return (
+    return (
     <Dashboard>
        
       <h2 className='text-3xl font-bold'>Tax Rate Slabs</h2>
@@ -87,3 +79,4 @@ const TaxRate = () => {
 };
 
 export default TaxRate;
+

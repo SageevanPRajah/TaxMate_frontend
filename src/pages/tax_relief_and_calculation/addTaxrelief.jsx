@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard';
+import { useAuth } from '../../hooks/useAuth.js';
 
 const AddTaxRelief = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [taxRelief, setTaxRelief] = useState({
     userID: '',
     year: '',
@@ -17,7 +19,27 @@ const AddTaxRelief = () => {
   const [userIdError, setUserIdError] = useState(''); 
   const [loading, setLoading] = useState(false);
 
- 
+  useEffect(() => {
+    if (user && user._id) {
+      setTaxRelief((prev) => ({ ...prev, userID: user._id }));
+    } else {
+      // Temporary fallback during development
+      setTaxRelief((prev) => ({ ...prev, userID: 'dev-user-id-123' }));
+    }
+  }, [user]);
+
+
+  useEffect(() => {
+    if (user && user._id) {
+      setTaxRelief((prev) => ({ ...prev, userID: user._id }));
+    } else {
+      // Temporary fallback during development
+      setTaxRelief((prev) => ({ ...prev, userID: 'dev-user-id-123' }));
+    }
+  }, [user]);
+
+  // Update top-level fields (userID, year, income, etc.)
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTaxRelief((prev) => ({ ...prev, [name]: value }));
@@ -117,6 +139,7 @@ const AddTaxRelief = () => {
           <h2 className="mb-4 text-2xl font-bold">Add Tax Relief</h2>
           {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
+
             {/* User ID (required) */}
             <div>
               <input
@@ -131,7 +154,7 @@ const AddTaxRelief = () => {
               {userIdError && <p className="mb-2 text-sm text-red-500">{userIdError}</p>}
             </div>
 
-            {/* Optional: Year */}
+=          {/* Optional: Year */}
             <input
               type="text"
               name="year"
