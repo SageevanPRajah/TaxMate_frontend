@@ -111,7 +111,7 @@ const AddTaxRelief = () => {
           <h2 className="mb-4 text-2xl font-bold">Add Tax Relief</h2>
           {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
-            
+
             {/* Optional: Year */}
             <input
               type="text"
