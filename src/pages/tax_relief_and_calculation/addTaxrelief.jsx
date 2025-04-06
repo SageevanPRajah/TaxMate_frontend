@@ -140,21 +140,6 @@ const AddTaxRelief = () => {
           {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
 
-            {/* User ID (required) */}
-            <div>
-              <input
-                type="text"
-                name="userID"
-                placeholder="User ID"
-                className="w-full p-2 mb-2 border border-gray-300 rounded"
-                value={taxRelief.userID}
-                onChange={handleChange}
-                required
-              />
-              {userIdError && <p className="mb-2 text-sm text-red-500">{userIdError}</p>}
-            </div>
-
-=          {/* Optional: Year */}
             <input
               type="text"
               name="year"
