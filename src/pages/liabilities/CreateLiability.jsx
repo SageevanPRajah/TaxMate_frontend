@@ -168,21 +168,7 @@ const CreateLiability = () => {
                                 />
                             </div>
                             
-                            <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Status</label>
-                                <select
-                                    name="status"
-                                    className="p-3 border border-gray-300 rounded w-full"
-                                    onChange={handleChange}
-                                    value={liability.status}
-                                    required
-                                >
-                                    <option value="">Select Status</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Paid">Paid</option>
-                                    <option value="Overdue">Overdue</option>
-                                </select>
-                            </div>
+                            
                         </div>
 
                         <div>

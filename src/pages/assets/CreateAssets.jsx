@@ -24,11 +24,11 @@ const CreateAsset = () => {
         const fetchLatestAssetID = async () => {
             try {
                 const response = await axios.get('http://localhost:5559/asset');
-                const assets = response.data;
+                const assets = response.data.data || response.data;
                 
                 if (assets.length === 0) {
                     // If no assets exist, start with Asset001
-                    setAsset(prev => ({ ...prev, assetID: 'Asset001' }));
+                    setAsset(prev => ({ ...prev, assetID: 'ASSET001' }));
                 } else {
                     // Find the highest asset ID number
                     const latestAsset = assets.reduce((latest, current) => {
