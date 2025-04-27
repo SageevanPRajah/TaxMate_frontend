@@ -13,7 +13,7 @@ const EditLiabilities = () => {
         amount: '',
         dueDate: '',
         status: '',
-        creditor: ''
+        description: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -62,92 +62,131 @@ const EditLiabilities = () => {
 
                     <form onSubmit={handleSubmit}>
                         <div className='grid grid-cols-1 gap-4'>
-                            <input 
-                                type='text' 
-                                name='liabilityID' 
-                                placeholder='Liability ID' 
-                                value={liability.liabilityID}
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            <input 
-                                type='text' 
-                                name='liabilityName' 
-                                placeholder='Liability Name' 
-                                value={liability.liabilityName}
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            
-                            {/* Type Dropdown */}
-                            <select
-                                name="type"
-                                className="p-3 border border-gray-300 rounded"
-                                onChange={handleChange}
-                                value={liability.type}
-                                required
-                            >
-                                <option value="">Select Type</option>
-                                <option value="Mortgage">Mortgage</option>
-                                <option value="Loan">Loan</option>
-                                <option value="Credit Card">Credit Card</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Liability ID</label>
+                                <input 
+                                    type='text' 
+                                    name='liabilityID' 
+                                    placeholder='Enter Liability ID' 
+                                    value={liability.liabilityID}
+                                    className='p-3 border border-gray-300 rounded w-full bg-gray-50' 
+                                    readOnly
+                                />
+                            </div>
 
-                            <input 
-                                type='text' 
-                                name='amount' 
-                                placeholder='Amount' 
-                                value={liability.amount}
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            
-                            <input 
-                                type='date' 
-                                name='dueDate' 
-                                placeholder='Due Date' 
-                                value={liability.dueDate}
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            
-                            {/* Status Dropdown */}
-                            <select
-                                name="status"
-                                className="p-3 border border-gray-300 rounded"
-                                onChange={handleChange}
-                                value={liability.status}
-                                required
-                            >
-                                <option value="">Select Status</option>
-                                <option value="Active">Active</option>
-                                <option value="Paid">Paid</option>
-                                <option value="Overdue">Overdue</option>
-                            </select>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Liability Name</label>
+                                <input 
+                                    type='text' 
+                                    name='liabilityName' 
+                                    placeholder='Enter Liability Name' 
+                                    value={liability.liabilityName}
+                                    className='p-3 border border-gray-300 rounded w-full' 
+                                    onChange={handleChange} 
+                                    required 
+                                />
+                            </div>
 
-                            <input 
-                                type='text' 
-                                name='creditor' 
-                                placeholder='Creditor Name' 
-                                value={liability.creditor}
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
+                            
+                            
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Type</label>
+                                <select
+                                    name="type"
+                                    className="p-3 border border-gray-300 rounded w-full"
+                                    onChange={handleChange}
+                                    value={liability.type}
+                                    required
+                                >
+                                    <option value="">Select Type</option>
+                                    <option value="Mortgage">Mortgage</option>
+                                    <option value="Loan">Loan</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Amount</label>
+                                <div className="flex items-center border border-gray-300 rounded w-full overflow-hidden">
+                                    <span className="px-3 text-gray-500 bg-gray-100">Rs.</span>
+                                    <input 
+                                        type="number" 
+                                        name="amount" 
+                                        placeholder="Enter Amount" 
+                                        value={liability.amount}
+                                        className="p-3 w-full outline-none" 
+                                        onChange={handleChange} 
+                                        required 
+                                        min="0" 
+                                        step="1"
+                                        onKeyDown={(e) => {
+                                            if (['e', 'E', '-', '.'].includes(e.key)) {
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Due Date</label>
+                                <input 
+                                    type='date' 
+                                    name='dueDate' 
+                                    placeholder='Select Due Date' 
+                                    value={liability.dueDate}
+                                    className='p-3 border border-gray-300 rounded w-full' 
+                                    onChange={handleChange} 
+                                    required 
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Status</label>
+                                <select
+                                    name="status"
+                                    className="p-3 border border-gray-300 rounded w-full"
+                                    onChange={handleChange}
+                                    value={liability.status}
+                                    required
+                                >
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Overdue">Overdue</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <button 
-                            type='submit' 
-                            className='mt-4 w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all' 
-                            disabled={loading}
-                        >
-                            {loading ? 'Updating...' : 'Update'}
-                        </button>
+                        <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
+                                <textarea 
+                                    name='description' 
+                                    placeholder='Enter Liability Description' 
+                                    value={liability.description}
+                                    className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
+                                    onChange={handleChange} 
+                                    required 
+                                />
+                            </div>
+
+                        <div className='flex gap-4 mt-6'>
+                            <button 
+                                type='submit' 
+                                className='flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all' 
+                                disabled={loading}
+                            >
+                                {loading ? 'Updating...' : 'Update Liability'}
+                            </button>
+                            <button 
+                                type='button'
+                                onClick={() => navigate('/liabilities')}
+                                className='flex-1 bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all'
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

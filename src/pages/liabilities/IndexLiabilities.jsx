@@ -99,15 +99,15 @@ const IndexLiabilities = () => {
         // Use autoTable for better formatting
         doc.autoTable({
             startY: 45,
-            head: [['Liability ID', 'Name', 'Type', 'Amount', 'Due Date', 'Status', 'Creditor']],
+            head: [['Liability ID', 'Name', 'Type', 'Amount', 'Due Date', 'Status', 'Description']],
             body: filteredLiabilities.map(liability => [
                 liability.liabilityID,
                 liability.liabilityName,
                 liability.type,
-                `$${liability.amount}`,
+                `Rs. ${liability.amount}`,
                 new Date(liability.dueDate).toLocaleDateString(),
                 liability.status,
-                liability.creditor
+                liability.description
             ]),
             theme: 'striped',
             headStyles: { fillColor: [59, 130, 246] } // Blue color for liability
@@ -189,8 +189,7 @@ const IndexLiabilities = () => {
                                 <th className='p-3 text-left'>Type</th>
                                 <th className='p-3 text-left'>Amount</th>
                                 <th className='p-3 text-left'>Due Date</th>
-                                <th className='p-3 text-left'>Status</th>
-                                <th className='p-3 text-left'>Creditor</th>
+                                <th className='p-3 text-left'>Description</th>
                                 <th className='p-3 text-left'>Actions</th>
                             </tr>
                         </thead>
@@ -200,10 +199,11 @@ const IndexLiabilities = () => {
                                     <td className='p-3'>{liability.liabilityID}</td>
                                     <td className='p-3'>{liability.liabilityName}</td>
                                     <td className='p-3'>{liability.type}</td>
-                                    <td className='p-3'>${liability.amount}</td>
+                                    <td className='p-3'>Rs. {liability.amount}</td>
                                     <td className='p-3'>{new Date(liability.dueDate).toLocaleDateString()}</td>
-                                    <td className='p-3'>{liability.status}</td>
-                                    <td className='p-3'>{liability.creditor}</td>
+                                    <td className='p-3 max-w-xs truncate' title={liability.description}>
+                                        {liability.description}
+                                    </td>
                                     <td className='p-3 flex gap-2'>
                                         <Link to={`/liabilities/detail/${liability._id}`} className='bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded'>
                                             <BsInfoCircle />
