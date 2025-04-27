@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams  } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard.jsx';
 
 const EditTaxRelief = () => {
@@ -8,37 +8,45 @@ const EditTaxRelief = () => {
   const { id } = useParams();
   const [taxRelief, setTaxRelief] = useState({
     userID: '',
-    year: '',
+    startYear: '',
+    endYear: '',
     income: '',
     deduction: '',
-   
     status: '',
     taxReliefs: [
       {
         taxReliefID: '',
         taxReliefDescription: '',
         reliefAmount: '',
-      }
-    ]
+      },
+    ],
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-   useEffect(() => {
-       const fetchProduct = async () => {
-         try {
-          
-           const response = await axios.get(`http://localhost:5559/taxRelief/${id}`);
-           setTaxRelief(response.data);
-         } catch (error) {
-           setError('Failed to fetch tax reliefs.');
-           console.error('Error fetching tax relief:', error);
-         }
-       };
-       fetchProduct();
-     }, [id]);
-  // Handle change for top-level fields
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5559/taxRelief/${id}`);
+        const data = response.data;
+
+        // Parse year "2021 - 2022" into startYear and endYear
+        const [startYear, endYear] = data.year?.split(' - ') || ['', ''];
+
+        setTaxRelief({
+          ...data,
+          startYear,
+          endYear,
+        });
+      } catch (error) {
+        setError('Failed to fetch tax reliefs.');
+        console.error('Error fetching tax relief:', error);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTaxRelief((prev) => ({
@@ -47,7 +55,6 @@ const EditTaxRelief = () => {
     }));
   };
 
-  // Handle change for fields within taxReliefs array
   const handleTaxReliefChange = (index, e) => {
     const { name, value } = e.target;
     const updatedEntries = taxRelief.taxReliefs.map((entry, idx) =>
@@ -59,7 +66,6 @@ const EditTaxRelief = () => {
     }));
   };
 
-  // Add a new tax relief entry
   const addTaxReliefEntry = () => {
     setTaxRelief((prev) => ({
       ...prev,
@@ -70,9 +76,8 @@ const EditTaxRelief = () => {
     }));
   };
 
-  // Remove a tax relief entry (if more than one exists)
   const removeTaxReliefEntry = (index) => {
-    if (taxRelief.taxReliefs.length === 1) return; // At least one is required
+    if (taxRelief.taxReliefs.length === 1) return;
     const updatedEntries = taxRelief.taxReliefs.filter((_, idx) => idx !== index);
     setTaxRelief((prev) => ({
       ...prev,
@@ -84,8 +89,22 @@ const EditTaxRelief = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
-    // Basic validation
+
+    const startYearNum = Number(taxRelief.startYear);
+    const endYearNum = Number(taxRelief.endYear);
+
+    if (isNaN(startYearNum) || isNaN(endYearNum)) {
+      setError('Start Year and End Year must be valid numbers.');
+      setLoading(false);
+      return;
+    }
+
+    if (endYearNum !== startYearNum + 1) {
+      setError('Fiscal year must be consecutive. For example: 2021 - 2022');
+      setLoading(false);
+      return;
+    }
+
     if (
       !taxRelief.userID.trim() ||
       !taxRelief.status ||
@@ -104,17 +123,20 @@ const EditTaxRelief = () => {
       setLoading(false);
       return;
     }
-  
+
+    const updatedPayload = {
+      ...taxRelief,
+      year: `${taxRelief.startYear.trim()} - ${taxRelief.endYear.trim()}`,
+      income: Number(taxRelief.income),
+      deduction: Number(taxRelief.deduction),
+      taxReliefs: taxRelief.taxReliefs.map((entry) => ({
+        ...entry,
+        reliefAmount: Number(entry.reliefAmount),
+      })),
+    };
+
     try {
-      await axios.put(`http://localhost:5559/taxRelief/${id}`, {
-        ...taxRelief,
-        income: Number(taxRelief.income),
-        deduction: Number(taxRelief.deduction),
-        taxReliefs: taxRelief.taxReliefs.map((entry) => ({
-          ...entry,
-          reliefAmount: Number(entry.reliefAmount),
-        }))
-      });
+      await axios.put(`http://localhost:5559/taxRelief/${id}`, updatedPayload);
       navigate('/taxRelief');
     } catch (err) {
       setError('Failed to update tax relief. Please try again.');
@@ -131,32 +153,61 @@ const EditTaxRelief = () => {
           <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">Edit Tax Relief</h2>
           {error && <p className="mb-3 text-center text-red-500">{error}</p>}
           <form onSubmit={handleSubmit} className="space-y-4">
-            
+            <div className="flex gap-2">
+              <input
+                type="text"
+                name="startYear"
+                placeholder="2021"
+                className="w-full p-3 border border-gray-300 rounded"
+                value={taxRelief.startYear}
+                onChange={handleChange}
+                required
+              />
+              <span className="flex items-center font-bold">-</span>
+              <input
+                type="text"
+                name="endYear"
+                placeholder="2022"
+                className="w-full p-3 border border-gray-300 rounded"
+                value={taxRelief.endYear}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
             <input
               type="number"
-              name="year"
-              placeholder="Year"
+              name="income"
+              placeholder="Income"
               className="w-full p-3 border border-gray-300 rounded"
-              value={taxRelief.year}
+              value={taxRelief.income}
               onChange={handleChange}
               required
             />
-            
+
             <input
               type="number"
               name="deduction"
               placeholder="Deduction"
               className="w-full p-3 border border-gray-300 rounded"
-                value={taxRelief.deduction}
+              value={taxRelief.deduction}
               onChange={handleChange}
               required
             />
-            {/* Tax Relief Entries */}
+
             <div>
               <h3 className="mb-2 font-semibold">Tax Relief Entries</h3>
               {taxRelief.taxReliefs.map((entry, index) => (
                 <div key={index} className="p-4 mb-4 border rounded">
-                  
+                  <input
+                    type="text"
+                    name="taxReliefID"
+                    placeholder="Tax Relief ID"
+                    className="w-full p-2 mb-2 border border-gray-300 rounded"
+                    value={entry.taxReliefID}
+                    onChange={(e) => handleTaxReliefChange(index, e)}
+                    required
+                  />
                   <input
                     type="text"
                     name="taxReliefDescription"
@@ -194,10 +245,11 @@ const EditTaxRelief = () => {
                 Add Another Entry
               </button>
             </div>
-           
+
             <select
               name="status"
               className="w-full p-3 border border-gray-300 rounded"
+              value={taxRelief.status}
               onChange={handleChange}
               required
             >
@@ -206,12 +258,13 @@ const EditTaxRelief = () => {
               <option value="paid">Paid</option>
               <option value="not paid">Not Paid</option>
             </select>
+
             <button
               type="submit"
               className="w-full py-3 mt-4 font-semibold text-white transition-all bg-green-600 rounded-lg hover:bg-green-700"
               disabled={loading}
             >
-              {loading ?'Updating...' : 'Update Product'}
+              {loading ? 'Updating...' : 'Update Tax Relief'}
             </button>
           </form>
         </div>

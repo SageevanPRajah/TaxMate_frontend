@@ -1,67 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard';
-import { useAuth } from '../../hooks/useAuth.js';
 
 const AddTaxRelief = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [taxRelief, setTaxRelief] = useState({
     userID: '',
-    year: '',
-    income: '',
+    startYear: '',
+    endYear: '',
     deduction: '',
     status: '',
-    taxReliefs: [], 
+    taxReliefs: [],
   });
-  const [error, setError] = useState(''); 
-  const [userIdError, setUserIdError] = useState(''); 
+  const [error, setError] = useState('');
+  const [userIdError, setUserIdError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (user && user._id) {
-      setTaxRelief((prev) => ({ ...prev, userID: user._id }));
-    } else {
-      // Temporary fallback during development
-      setTaxRelief((prev) => ({ ...prev, userID: 'dev-user-id-123' }));
-    }
-  }, [user]);
-
-
-  useEffect(() => {
-    if (user && user._id) {
-      setTaxRelief((prev) => ({ ...prev, userID: user._id }));
-    } else {
-      // Temporary fallback during development
-      setTaxRelief((prev) => ({ ...prev, userID: 'dev-user-id-123' }));
-    }
-  }, [user]);
-
-  // Update top-level fields (userID, year, income, etc.)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTaxRelief((prev) => ({ ...prev, [name]: value }));
 
-    
     if (name === 'userID') {
-      const userIdPattern = /^U/; 
+      const userIdPattern = /^U/;
       if (!userIdPattern.test(value) && value.length > 0) {
         setUserIdError("User ID should start with 'U'");
       } else {
-        setUserIdError(''); 
+        setUserIdError('');
       }
     }
   };
 
-  
   const handleTaxReliefEntryChange = (index, field, value) => {
     const updatedEntries = [...taxRelief.taxReliefs];
     updatedEntries[index][field] = value;
     setTaxRelief((prev) => ({ ...prev, taxReliefs: updatedEntries }));
   };
-
 
   const addTaxReliefEntry = () => {
     setTaxRelief((prev) => ({
@@ -83,7 +57,6 @@ const AddTaxRelief = () => {
     setLoading(true);
     setError('');
 
-   
     const userIdPattern = /^U/;
     if (!userIdPattern.test(taxRelief.userID)) {
       setError("User ID must start with 'U'");
@@ -91,10 +64,26 @@ const AddTaxRelief = () => {
       return;
     }
 
+    const startYearNum = Number(taxRelief.startYear);
+    const endYearNum = Number(taxRelief.endYear);
+
+    if (isNaN(startYearNum) || isNaN(endYearNum)) {
+      setError('Start Year and End Year must be valid numbers.');
+      setLoading(false);
+      return;
+    }
+
+    if (endYearNum !== startYearNum + 1) {
+      setError('Fiscal year must be consecutive. For example: 2021 - 2022');
+      setLoading(false);
+      return;
+    }
+
     if (
       !taxRelief.userID.trim() ||
       !taxRelief.status ||
-      Number(taxRelief.income) <= 0 ||
+      !taxRelief.startYear.trim() ||
+      !taxRelief.endYear.trim() ||
       Number(taxRelief.deduction) < 0 ||
       !Array.isArray(taxRelief.taxReliefs) ||
       taxRelief.taxReliefs.length === 0 ||
@@ -105,23 +94,49 @@ const AddTaxRelief = () => {
           Number(entry.reliefAmount) <= 0
       )
     ) {
-      setError('Please make sure all required fields are filled and all amounts are positive numbers.');
+      setError(
+        'Please make sure all required fields are filled and all amounts are positive numbers.'
+      );
       setLoading(false);
       return;
     }
 
-    try {
-      const payload = {
-        ...taxRelief,
-        income: Number(taxRelief.income),
-        deduction: Number(taxRelief.deduction),
-        taxReliefs: taxRelief.taxReliefs.map((entry) => ({
-          taxReliefID: entry.taxReliefID,
-          taxReliefDescription: entry.taxReliefDescription,
-          reliefAmount: Number(entry.reliefAmount),
-        })),
-      };
+    const fiscalYear = `${taxRelief.startYear.trim()} - ${taxRelief.endYear.trim()}`;
+    const startDate = new Date(`${taxRelief.startYear.trim()}-04-01T00:00:00.000Z`);
+    const endDate = new Date(`${taxRelief.endYear.trim()}-03-31T23:59:59.999Z`);
 
+    let totalIncome = 0;
+    try {
+      const incomeResponse = await axios.get('http://localhost:5559/income');
+      const allIncomes = incomeResponse.data.data || incomeResponse.data;
+      const filteredIncomes = allIncomes.filter((income) => {
+        const incomeDate = new Date(income.date);
+        return incomeDate >= startDate && incomeDate <= endDate;
+      });
+      totalIncome = filteredIncomes.reduce(
+        (sum, income) => sum + Number(income.amount || 0),
+        0
+      );
+    } catch (err) {
+      setError('Failed to retrieve incomes. Please try again.');
+      setLoading(false);
+      return;
+    }
+
+    const payload = {
+      userID: taxRelief.userID,
+      income: totalIncome,
+      deduction: Number(taxRelief.deduction),
+      status: taxRelief.status,
+      taxReliefs: taxRelief.taxReliefs.map((entry) => ({
+        taxReliefID: entry.taxReliefID,
+        taxReliefDescription: entry.taxReliefDescription,
+        reliefAmount: Number(entry.reliefAmount),
+      })),
+      year: fiscalYear,
+    };
+
+    try {
       await axios.post('http://localhost:5559/taxRelief', payload);
       navigate('/taxRelief');
     } catch (err) {
@@ -139,8 +154,6 @@ const AddTaxRelief = () => {
           <h2 className="mb-4 text-2xl font-bold">Add Tax Relief</h2>
           {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
-
-            {/* User ID (required) */}
             <div>
               <input
                 type="text"
@@ -154,17 +167,32 @@ const AddTaxRelief = () => {
               {userIdError && <p className="mb-2 text-sm text-red-500">{userIdError}</p>}
             </div>
 
-=          {/* Optional: Year */}
-            <input
-              type="text"
-              name="year"
-              placeholder="Year"
-              className="w-full p-2 mb-2 border border-gray-300 rounded"
-              value={taxRelief.year}
-              onChange={handleChange}
-            />
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="text"
+                name="startYear"
+                placeholder="2021"
+                pattern="^\d{4}$"
+                title="Enter a four-digit year"
+                className="w-full p-2 border border-gray-300 rounded"
+                value={taxRelief.startYear}
+                onChange={handleChange}
+                required
+              />
+              <span className="font-bold">-</span>
+              <input
+                type="text"
+                name="endYear"
+                placeholder="2022"
+                pattern="^\d{4}$"
+                title="Enter a four-digit year"
+                className="w-full p-2 border border-gray-300 rounded"
+                value={taxRelief.endYear}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-            {/* Deduction (required) */}
             <input
               type="number"
               name="deduction"
@@ -175,7 +203,6 @@ const AddTaxRelief = () => {
               required
             />
 
-            {/* Status (required) */}
             <select
               name="status"
               className="w-full p-2 mb-2 border border-gray-300 rounded"
@@ -215,7 +242,9 @@ const AddTaxRelief = () => {
                   placeholder="Relief Amount"
                   className="w-full p-2 mb-2 border border-gray-300 rounded"
                   value={entry.reliefAmount}
-                  onChange={(e) => handleTaxReliefEntryChange(index, 'reliefAmount', e.target.value)}
+                  onChange={(e) =>
+                    handleTaxReliefEntryChange(index, 'reliefAmount', e.target.value)
+                  }
                   required
                 />
                 {taxRelief.taxReliefs.length > 1 && (
@@ -229,6 +258,7 @@ const AddTaxRelief = () => {
                 )}
               </div>
             ))}
+
             <button
               type="button"
               onClick={addTaxReliefEntry}
@@ -236,6 +266,7 @@ const AddTaxRelief = () => {
             >
               Add Tax Relief Entry
             </button>
+
             <button
               type="submit"
               className="w-full py-2 text-white bg-green-600 rounded"
