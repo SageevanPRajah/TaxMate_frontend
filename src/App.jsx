@@ -3,13 +3,17 @@ import {Routes, Route} from 'react-router-dom'
 //Sageevan
 //Common
 import Home from './pages/Home.jsx';
+import Notification from './pages/special/Notification.jsx';
+import Chatbot from './pages/special/Chatbot.jsx';
 
 //Auth
 import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
+import IndexProfile from './pages/auth/IndexProfile.jsx';
 import Profile from './pages/auth/Profile.jsx';
 import AuthSuccess from './pages/auth/AuthSuccess.jsx';
 import EditProfile from './pages/auth/EditProfile.jsx';
+import ForgetPassword from './pages/auth/ForgetPassword.jsx';
 
 //Isuru
 //taxReliefCalculation
@@ -22,6 +26,7 @@ import DeleteTaxRelief from './pages/tax_relief_and_calculation/deleteTaxRelief.
 import AddTaxRate from './pages/taxRate/addTaxRate.jsx';
 import EditTaxRate from './pages/taxRate/editTaxRate.jsx';
 import DeleteTaxRate from './pages/taxRate/deleteTaxRate.jsx';
+import TaxRate from './pages/taxRate/TaxRate.jsx';
 
 //Gihan  
 //Income
@@ -56,10 +61,22 @@ const App = () => {
   return (
     <Routes>
       {/** Sageevan */}
+      {/** Common */}
       <Route path="/" element={<Home />} />
-        
+      <Route path="/notification" element={<Notification />} />
+      <Route path="/chat" element={<Chatbot />} />
+      
       {/** Auth */}
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/profileIndex" element={<IndexProfile />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/profile/edit" element={<EditProfile />} />
+      <Route path="/auth-success" element={<AuthSuccess />} />
+      <Route path="/forgot-password" element={<ForgetPassword />} />
+
+       {/** Auth */}
+       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/profile/edit" element={<EditProfile />} />
@@ -76,7 +93,8 @@ const App = () => {
       {/** TaxRate */}
       <Route path="/taxRelief/addTaxRate" element={<AddTaxRate />} />   
       <Route path="/taxRelief/editTaxRate/:id" element={<EditTaxRate />} />
-      <Route path="/taxRelief/deleteTaxRate/:id" element={<DeleteTaxRate />} />  
+      <Route path="/taxRelief/deleteTaxRate/:id" element={<DeleteTaxRate />} /> 
+      <Route path="/taxRate" element={<TaxRate />} /> 
 
       {/** Gihan */}
       {/** Income */}
