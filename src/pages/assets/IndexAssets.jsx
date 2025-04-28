@@ -123,13 +123,13 @@ const IndexAssets = () => {
             <div className='flex justify-between items-center mb-4'>
                 <h1 className='text-3xl font-bold'>Asset List</h1>
                 <div className='flex'>
-                    <Link to='/assets/create' className='bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded flex items-center'>
+                    <Link to='/assets/create' className='bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded flex items-center'>
                         <MdOutlineAddBox className='mr-2' />
                         Add Asset
                     </Link>
                     <button
                         onClick={generatePDF}
-                        className="ml-4 bg-green-600 hover:bg-green-800 text-white py-2 px-4 rounded flex items-center"
+                        className="ml-4 bg-blue-600 hover:bg-blue-800 text-white py-2 px-4 rounded flex items-center"
                     >
                         Generate PDF
                     </button>

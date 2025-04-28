@@ -154,7 +154,6 @@ const EditLiabilities = () => {
                                     <option value="">Select Status</option>
                                     <option value="Active">Active</option>
                                     <option value="Paid">Paid</option>
-                                    <option value="Overdue">Overdue</option>
                                 </select>
                             </div>
                         </div>

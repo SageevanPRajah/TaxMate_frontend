@@ -188,6 +188,7 @@ const IndexLiabilities = () => {
                                 <th className='p-3 text-left'>Name</th>
                                 <th className='p-3 text-left'>Type</th>
                                 <th className='p-3 text-left'>Amount</th>
+                                <th className='p-3 text-left'>Status</th>
                                 <th className='p-3 text-left'>Due Date</th>
                                 <th className='p-3 text-left'>Description</th>
                                 <th className='p-3 text-left'>Actions</th>
@@ -200,6 +201,7 @@ const IndexLiabilities = () => {
                                     <td className='p-3'>{liability.liabilityName}</td>
                                     <td className='p-3'>{liability.type}</td>
                                     <td className='p-3'>Rs. {liability.amount}</td>
+                                    <td className='p-3'>{liability.status}</td>
                                     <td className='p-3'>{new Date(liability.dueDate).toLocaleDateString()}</td>
                                     <td className='p-3 max-w-xs truncate' title={liability.description}>
                                         {liability.description}

@@ -10,26 +10,23 @@ const CreateLiability = () => {
         liabilityName: '',
         type: '',
         amount: '',
-        dueDate: '', 
-        status: '',
+        dueDate: '',
+        status: '', // status added
         description: ''
     });
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Fetch the latest liability ID when component mounts
     useEffect(() => {
         const fetchLatestLiabilityID = async () => {
             try {
                 const response = await axios.get('http://localhost:5559/liability');
                 const liabilities = response.data.data || response.data;
-                
+
                 if (liabilities.length === 0) {
-                    // If no liabilities exist, start with LIABILITY001
                     setLiability(prev => ({ ...prev, liabilityID: 'LIABILITY001' }));
                 } else {
-                    // Find the highest liability ID number
                     const latestLiability = liabilities.reduce((latest, current) => {
                         const latestNum = parseInt(latest.liabilityID.replace('LIABILITY', ''));
                         const currentNum = parseInt(current.liabilityID.replace('LIABILITY', ''));
@@ -39,12 +36,11 @@ const CreateLiability = () => {
                     const latestNum = parseInt(latestLiability.liabilityID.replace('LIABILITY', ''));
                     const nextNum = latestNum + 1;
                     const nextLiabilityID = `LIABILITY${String(nextNum).padStart(3, '0')}`;
-                    
+
                     setLiability(prev => ({ ...prev, liabilityID: nextLiabilityID }));
                 }
             } catch (error) {
                 console.error('Error fetching latest Liability ID:', error);
-                // Fallback to a timestamp-based ID if server connection fails
                 const timestamp = new Date().getTime();
                 const fallbackID = `LIABILITY${String(timestamp).slice(-3)}`;
                 setLiability(prev => ({ ...prev, liabilityID: fallbackID }));
@@ -56,10 +52,7 @@ const CreateLiability = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
-        // Liability ID is read-only, so we don't need validation for it
         if (name === 'liabilityID') return;
-        
         setLiability((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -115,8 +108,6 @@ const CreateLiability = () => {
                                 />
                             </div>
 
-                           
-                            
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Type</label>
                                 <select
@@ -155,7 +146,7 @@ const CreateLiability = () => {
                                     />
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Due Date</label>
                                 <input 
@@ -167,20 +158,35 @@ const CreateLiability = () => {
                                     required 
                                 />
                             </div>
-                            
-                            
+
+                            {/* Status Dropdown */}
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Status</label>
+                                <select
+                                    name="status"
+                                    className="p-3 border border-gray-300 rounded w-full"
+                                    onChange={handleChange}
+                                    value={liability.status}
+                                    required
+                                >
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                            </div>
+
                         </div>
 
                         <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
-                                <textarea 
-                                    name='description' 
-                                    placeholder='Enter Liability Description' 
-                                    className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
-                                    onChange={handleChange} 
-                                    required 
-                                />
-                            </div>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
+                            <textarea 
+                                name='description' 
+                                placeholder='Enter Liability Description' 
+                                className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
 
                         <button 
                             type='submit' 
