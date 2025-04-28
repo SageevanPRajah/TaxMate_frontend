@@ -18,20 +18,61 @@ const CreateAsset = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [showConfirmation, setShowConfirmation] = useState(false);
+
+    // Fetch the latest asset ID when component mounts
+    useEffect(() => {
+        const fetchLatestAssetID = async () => {
+            try {
+                const response = await axios.get('http://localhost:5559/asset');
+                const assets = response.data.data || response.data;
+                
+                if (assets.length === 0) {
+                    // If no assets exist, start with Asset001
+                    setAsset(prev => ({ ...prev, assetID: 'ASSET001' }));
+                } else {
+                    // Find the highest asset ID number
+                    const latestAsset = assets.reduce((latest, current) => {
+                        const latestNum = parseInt(latest.assetID.replace('ASSET', ''));
+                        const currentNum = parseInt(current.assetID.replace('ASSET', ''));
+                        return currentNum > latestNum ? current : latest;
+                    });
+
+                    const latestNum = parseInt(latestAsset.assetID.replace('ASSET', ''));
+                    const nextNum = latestNum + 1;
+                    const nextAssetID = `Asset${String(nextNum).padStart(3, '0')}`;
+                    
+                    setAsset(prev => ({ ...prev, assetID: nextAssetID }));
+                }
+            } catch (error) {
+                console.error('Error fetching latest ASSET ID:', error);
+                // Fallback to a timestamp-based ID if server connection fails
+                const timestamp = new Date().getTime();
+                const fallbackID = `ASSET${String(timestamp).slice(-3)}`;
+                setAsset(prev => ({ ...prev, assetID: fallbackID }));
+                // Don't show error to user since we have a fallback
+            }
+        };
+
+        fetchLatestAssetID();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         
-        // Prevent negative numbers for specific fields
-        if (name === 'assetValue' || name === 'percentage') {
-            if (value < 0) return;
+        // Asset ID is read-only, so we don't need validation for it
+        if (name === 'assetID') return;
+        
+        // Percentage validation
+        if (name === 'percentage') {
+            const numValue = parseFloat(value);
+            if (numValue < 0 || numValue > 100) return;
+            setAsset(prev => ({ ...prev, [name]: value }));
+            return;
         }
-
-        // Asset ID validation - only allow alphanumeric characters
-        if (name === 'assetID') {
-            const alphanumericRegex = /^[a-zA-Z0-9]*$/;
-            if (!alphanumericRegex.test(value)) return;
+        
+        // Prevent negative numbers for specific fields
+        if (name === 'assetValue') {
+            if (value < 0) return;
         }
 
         setAsset((prev) => ({ ...prev, [name]: value }));
@@ -55,37 +96,60 @@ const CreateAsset = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setShowConfirmation(true);
-    };
-
-    const handleConfirm = async () => {
         setLoading(true);
         setError(null);
 
-        // Additional validation before submission
-        if (parseFloat(asset.assetValue) < 0 || parseFloat(asset.percentage) < 0) {
-            setError('Asset Value and Percentage cannot be negative numbers.');
+        // Validate all required fields
+        if (!asset.assetID || !asset.assetName || !asset.assetValue || !asset.category || 
+            !asset.changeType || !asset.percentage || !asset.date) {
+            setError('Please fill in all required fields.');
             setLoading(false);
             return;
         }
 
+        // Validate numeric values
+        const assetValue = parseFloat(asset.assetValue);
+        const percentage = parseFloat(asset.percentage);
+        
+        if (isNaN(assetValue) || isNaN(percentage)) {
+            setError('Asset Value and Percentage must be valid numbers.');
+            setLoading(false);
+            return;
+        }
+
+        if (assetValue < 0 || percentage < 0 || percentage > 100) {
+            setError('Asset Value cannot be negative and Percentage must be between 0 and 100.');
+            setLoading(false);
+            return;
+        }
+
+        // Prepare the data to be sent
+        const assetData = {
+            ...asset,
+            assetValue: assetValue.toString(),
+            percentage: percentage.toString(),
+            amount: (assetValue * percentage / 100).toFixed(2)
+        };
+
         try {
-            await axios.post('http://localhost:5559/asset', asset, {
+            console.log('Sending data:', assetData); // Debug log
+            const response = await axios.post('http://localhost:5559/asset', assetData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
+            console.log('Response:', response.data); // Debug log
             navigate('/assets');
         } catch (error) {
-            setError('Failed to create asset. Please try again.');
-            console.error('Error creating asset:', error);
+            console.error('Error details:', error.response?.data || error.message); // Detailed error log
+            if (error.code === 'ECONNREFUSED') {
+                setError('Cannot connect to the server. Please check if the server is running.');
+            } else {
+                setError(error.response?.data?.message || 'Failed to create asset. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleBack = () => {
-        setShowConfirmation(false);
     };
 
     return (
@@ -95,56 +159,60 @@ const CreateAsset = () => {
                     <h2 className='text-3xl font-bold text-center mb-6 text-gray-800'>Create Asset</h2>
                     {error && <p className='text-red-500 text-center mb-3'>{error}</p>}
 
-                    {!showConfirmation ? (
-                        <form onSubmit={handleSubmit}>
-                            <div className='grid grid-cols-1 gap-4'>
+                    <form onSubmit={handleSubmit}>
+                        <div className='grid grid-cols-1 gap-4'>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Asset ID</label>
                                 <div className="relative">
                                     <input 
-                                        type='text' 
+                                        type='text'
                                         name='assetID' 
-                                        placeholder='Asset ID (Alphanumeric only)' 
-                                        className='p-3 border border-gray-300 rounded w-full' 
-                                        onChange={handleChange} 
                                         value={asset.assetID}
-                                        required 
-                                        pattern="[a-zA-Z0-9]+"
-                                        title="Only alphanumeric characters are allowed"
+                                        className='p-3 border border-gray-300 rounded w-full bg-gray-50' 
+                                        readOnly
                                     />
-                                    <span className="absolute right-3 top-3 text-gray-500 text-xs">Required</span>
                                 </div>
+                            </div>
 
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Asset Name</label>
                                 <input 
                                     type='text' 
                                     name='assetName' 
-                                    placeholder='Asset Name' 
-                                    className='p-3 border border-gray-300 rounded' 
+                                    placeholder='Enter Asset Name' 
+                                    className='p-3 border border-gray-300 rounded w-full' 
                                     onChange={handleChange} 
                                     required 
                                 />
+                            </div>
 
-                                <div className="relative">
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Asset Value</label>
+                                <div className="flex items-center border border-gray-300 rounded w-full overflow-hidden">
+                                    <span className="px-3 text-gray-500 bg-gray-100">Rs.</span>
                                     <input 
-                                        type='number' 
-                                        name='assetValue' 
-                                        placeholder='Asset Value' 
-                                        className='p-3 border border-gray-300 rounded w-full' 
+                                        type="number" 
+                                        name="assetValue" 
+                                        placeholder="Enter Asset Value" 
+                                        className="p-3 w-full outline-none" 
                                         onChange={handleChange} 
                                         required 
-                                        min="0"
-                                        step="0.01"
+                                        min="0" 
+                                        step="1"
                                         onKeyDown={(e) => {
-                                            if (e.key === '-' || e.key === 'e' || e.key === '.') {
+                                            if (['e', 'E', '-', '.'].includes(e.key)) {
                                                 e.preventDefault();
                                             }
                                         }}
                                     />
-                                    <span className="absolute right-3 top-3 text-gray-500">Rs.</span>
                                 </div>
-                                
-                                {/* Category Dropdown */}
+                            </div>
+                            
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Category</label>
                                 <select
                                     name="category"
-                                    className="p-3 border border-gray-300 rounded"
+                                    className="p-3 border border-gray-300 rounded w-full"
                                     onChange={handleChange}
                                     value={asset.category}
                                     required
@@ -153,11 +221,13 @@ const CreateAsset = () => {
                                     <option value="Current">Current</option>
                                     <option value="Non-Current">Non-Current</option>
                                 </select>
+                            </div>
 
-                                {/* Change Type Dropdown */}
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Change Type</label>
                                 <select
                                     name="changeType"
-                                    className="p-3 border border-gray-300 rounded"
+                                    className="p-3 border border-gray-300 rounded w-full"
                                     onChange={handleChange}
                                     value={asset.changeType}
                                     required
@@ -166,88 +236,69 @@ const CreateAsset = () => {
                                     <option value="Increase">Increase</option>
                                     <option value="Decrease">Decrease</option>
                                 </select>
+                            </div>
 
-                                <div className="relative">
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Percentage</label>
+                                <div className="flex items-center border border-gray-300 rounded w-full overflow-hidden">
                                     <input 
-                                        type='number' 
-                                        name='percentage' 
-                                        placeholder='Percentage' 
-                                        className='p-3 border border-gray-300 rounded w-full' 
+                                        type="number" 
+                                        name="percentage" 
+                                        placeholder="Enter percentage (0-100)" 
+                                        className="p-3 w-full outline-none" 
                                         onChange={handleChange} 
                                         required 
-                                        min="0"
+                                        min="0" 
                                         max="100"
-                                        step="0.01"
+                                        step="1"
+                                        value={asset.percentage}
                                         onKeyDown={(e) => {
-                                            if (e.key === '-' || e.key === 'e' || e.key === '.') {
+                                            if (['-', 'e', '.', '+'].includes(e.key)) {
                                                 e.preventDefault();
                                             }
                                         }}
                                     />
-                                    <span className="absolute right-3 top-3 text-gray-500">%</span>
+                                    <span className="px-3 text-gray-500 bg-gray-100">%</span>
                                 </div>
+                            </div>
 
-                                <div className="relative">
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Amount</label>
+                                <div className="flex items-center border border-gray-300 rounded w-full bg-gray-50 overflow-hidden">
+                                    <span className="px-3 text-gray-500 bg-gray-100">Rs.</span>
                                     <input 
-                                        type='number' 
-                                        name='amount' 
-                                        placeholder='Amount' 
-                                        className='p-3 border border-gray-300 rounded w-full bg-gray-50' 
+                                        type="number" 
+                                        name="amount" 
+                                        placeholder="Calculated Amount" 
+                                        className="p-3 w-full bg-gray-50 outline-none" 
                                         value={asset.amount}
                                         readOnly
                                     />
-                                    <span className="absolute right-3 top-3 text-gray-500">Rs.</span>
                                 </div>
+                            </div>
 
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Date</label>
                                 <input 
                                     type='date' 
                                     name='date' 
-                                    placeholder='Date' 
-                                    className='p-3 border border-gray-300 rounded' 
+                                    placeholder='Select Date' 
+                                    className='p-3 border border-gray-300 rounded w-full' 
                                     onChange={handleChange} 
                                     value={asset.date}
                                     required 
                                 />
                             </div>
-
-                            <button 
-                                type='submit' 
-                                className='mt-4 w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all' 
-                                disabled={loading}
-                            >
-                                {loading ? 'Submitting...' : 'Submit'}
-                            </button>
-                        </form>
-                    ) : (
-                        <div className='p-6 bg-white rounded-lg'>
-                            <h3 className='text-xl font-semibold mb-4 text-center text-gray-800'>Confirm Asset Details</h3>
-                            <div className='space-y-3 text-sm border rounded-lg p-4 bg-gray-50'>
-                                <p><span className='font-medium'>Asset ID:</span> {asset.assetID}</p>
-                                <p><span className='font-medium'>Asset Name:</span> {asset.assetName}</p>
-                                <p><span className='font-medium'>Asset Value:</span> Rs. {parseFloat(asset.assetValue).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                <p><span className='font-medium'>Category:</span> {asset.category}</p>
-                                <p><span className='font-medium'>Change Type:</span> {asset.changeType}</p>
-                                <p><span className='font-medium'>Percentage:</span> {asset.percentage}%</p>
-                                <p><span className='font-medium'>Calculated Amount:</span> Rs. {parseFloat(asset.amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                <p><span className='font-medium'>Date:</span> {new Date(asset.date).toLocaleDateString()}</p>
-                            </div>
-                            <div className='flex gap-4 mt-6'>
-                                <button
-                                    onClick={handleConfirm}
-                                    className='flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all'
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Submitting...' : 'OK'}
-                                </button>
-                                <button
-                                    onClick={handleBack}
-                                    className='flex-1 bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all'
-                                >
-                                    Back
-                                </button>
-                            </div>
                         </div>
-                    )}
+
+                        <button 
+                            type='submit' 
+                            className='mt-4 w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all' 
+                            disabled={loading}
+                        >
+                            {loading ? 'Submitting...' : 'Submit'}
+                        </button>
+                    </form>
                 </div>
             </div>
         </Dashboard>
