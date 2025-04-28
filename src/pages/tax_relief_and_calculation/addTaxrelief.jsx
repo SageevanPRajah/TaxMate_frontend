@@ -154,44 +154,15 @@ const AddTaxRelief = () => {
           <h2 className="mb-4 text-2xl font-bold">Add Tax Relief</h2>
           {error && <p className="mb-4 text-red-500">{error}</p>}
           <form onSubmit={handleSubmit}>
-            <div>
-              <input
-                type="text"
-                name="userID"
-                placeholder="User ID"
-                className="w-full p-2 mb-2 border border-gray-300 rounded"
-                value={taxRelief.userID}
-                onChange={handleChange}
-                required
-              />
-              {userIdError && <p className="mb-2 text-sm text-red-500">{userIdError}</p>}
-            </div>
 
-            <div className="flex items-center gap-2 mb-2">
-              <input
-                type="text"
-                name="startYear"
-                placeholder="2021"
-                pattern="^\d{4}$"
-                title="Enter a four-digit year"
-                className="w-full p-2 border border-gray-300 rounded"
-                value={taxRelief.startYear}
-                onChange={handleChange}
-                required
-              />
-              <span className="font-bold">-</span>
-              <input
-                type="text"
-                name="endYear"
-                placeholder="2022"
-                pattern="^\d{4}$"
-                title="Enter a four-digit year"
-                className="w-full p-2 border border-gray-300 rounded"
-                value={taxRelief.endYear}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <input
+              type="text"
+              name="year"
+              placeholder="Year"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+              value={taxRelief.year}
+              onChange={handleChange}
+            />
 
             <input
               type="number"
