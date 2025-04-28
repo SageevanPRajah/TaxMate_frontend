@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard.jsx';
@@ -10,16 +10,49 @@ const CreateLiability = () => {
         liabilityName: '',
         type: '',
         amount: '',
-        dueDate: '', 
-        status: '',
-        creditor: ''
+        dueDate: '',
+        status: '', // status added
+        description: ''
     });
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    useEffect(() => {
+        const fetchLatestLiabilityID = async () => {
+            try {
+                const response = await axios.get('http://localhost:5559/liability');
+                const liabilities = response.data.data || response.data;
+
+                if (liabilities.length === 0) {
+                    setLiability(prev => ({ ...prev, liabilityID: 'LIABILITY001' }));
+                } else {
+                    const latestLiability = liabilities.reduce((latest, current) => {
+                        const latestNum = parseInt(latest.liabilityID.replace('LIABILITY', ''));
+                        const currentNum = parseInt(current.liabilityID.replace('LIABILITY', ''));
+                        return currentNum > latestNum ? current : latest;
+                    });
+
+                    const latestNum = parseInt(latestLiability.liabilityID.replace('LIABILITY', ''));
+                    const nextNum = latestNum + 1;
+                    const nextLiabilityID = `LIABILITY${String(nextNum).padStart(3, '0')}`;
+
+                    setLiability(prev => ({ ...prev, liabilityID: nextLiabilityID }));
+                }
+            } catch (error) {
+                console.error('Error fetching latest Liability ID:', error);
+                const timestamp = new Date().getTime();
+                const fallbackID = `LIABILITY${String(timestamp).slice(-3)}`;
+                setLiability(prev => ({ ...prev, liabilityID: fallbackID }));
+            }
+        };
+
+        fetchLatestLiabilityID();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (name === 'liabilityID') return;
         setLiability((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -52,75 +85,104 @@ const CreateLiability = () => {
 
                     <form onSubmit={handleSubmit}>
                         <div className='grid grid-cols-1 gap-4'>
-                            <input 
-                                type='text' 
-                                name='liabilityID' 
-                                placeholder='Liability ID' 
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            <input 
-                                type='text' 
-                                name='liabilityName' 
-                                placeholder='Liability Name' 
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            
-                            {/* Type Dropdown */}
-                            <select
-                                name="type"
-                                className="p-3 border border-gray-300 rounded"
-                                onChange={handleChange}
-                                value={liability.type}
-                                required
-                            >
-                                <option value="">Select Type</option>
-                                <option value="Mortgage">Mortgage</option>
-                                <option value="Loan">Loan</option>
-                                <option value="Credit Card">Credit Card</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Liability ID</label>
+                                <input 
+                                    type='text' 
+                                    name='liabilityID' 
+                                    value={liability.liabilityID}
+                                    className='p-3 border border-gray-300 rounded w-full bg-gray-50' 
+                                    readOnly
+                                />
+                            </div>
 
-                            <input 
-                                type='text' 
-                                name='amount' 
-                                placeholder='Amount' 
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            
-                            <input 
-                                type='date' 
-                                name='dueDate' 
-                                placeholder='Due Date' 
-                                className='p-3 border border-gray-300 rounded' 
-                                onChange={handleChange} 
-                                required 
-                            />
-                            
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Liability Name</label>
+                                <input 
+                                    type='text' 
+                                    name='liabilityName' 
+                                    placeholder='Enter Liability Name' 
+                                    className='p-3 border border-gray-300 rounded w-full' 
+                                    onChange={handleChange} 
+                                    required 
+                                />
+                            </div>
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Type</label>
+                                <select
+                                    name="type"
+                                    className="p-3 border border-gray-300 rounded w-full"
+                                    onChange={handleChange}
+                                    value={liability.type}
+                                    required
+                                >
+                                    <option value="">Select Type</option>
+                                    <option value="Mortgage">Mortgage</option>
+                                    <option value="Loan">Loan</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Amount</label>
+                                <div className="flex items-center border border-gray-300 rounded w-full overflow-hidden">
+                                    <span className="px-3 text-gray-500 bg-gray-100">Rs.</span>
+                                    <input 
+                                        type="number" 
+                                        name="amount" 
+                                        placeholder="Enter Amount" 
+                                        className="p-3 w-full outline-none" 
+                                        onChange={handleChange} 
+                                        required 
+                                        min="0" 
+                                        step="1"
+                                        onKeyDown={(e) => {
+                                            if (['e', 'E', '-', '.'].includes(e.key)) {
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Due Date</label>
+                                <input 
+                                    type='date' 
+                                    name='dueDate' 
+                                    placeholder='Select Due Date' 
+                                    className='p-3 border border-gray-300 rounded w-full' 
+                                    onChange={handleChange} 
+                                    required 
+                                />
+                            </div>
+
                             {/* Status Dropdown */}
-                            <select
-                                name="status"
-                                className="p-3 border border-gray-300 rounded"
-                                onChange={handleChange}
-                                value={liability.status}
-                                required
-                            >
-                                <option value="">Select Status</option>
-                                <option value="Active">Active</option>
-                                <option value="Paid">Paid</option>
-                                <option value="Overdue">Overdue</option>
-                            </select>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Status</label>
+                                <select
+                                    name="status"
+                                    className="p-3 border border-gray-300 rounded w-full"
+                                    onChange={handleChange}
+                                    value={liability.status}
+                                    required
+                                >
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                            </div>
 
-                            <input 
-                                type='text' 
-                                name='creditor' 
-                                placeholder='Creditor Name' 
-                                className='p-3 border border-gray-300 rounded' 
+                        </div>
+
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
+                            <textarea 
+                                name='description' 
+                                placeholder='Enter Liability Description' 
+                                className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
                                 onChange={handleChange} 
                                 required 
                             />
