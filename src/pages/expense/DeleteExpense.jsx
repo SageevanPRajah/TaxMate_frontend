@@ -1,5 +1,5 @@
-import React from "react";
 import axios from "axios";
+import PropTypes from "prop-types";
 
 const DeleteExpense = ({ expense, onClose, onDelete }) => {
     const handleDelete = async () => {
@@ -38,5 +38,14 @@ const DeleteExpense = ({ expense, onClose, onDelete }) => {
         </div>
     );
     };
+DeleteExpense.propTypes = {
+    expense: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        expenseName: PropTypes.string.isRequired,
+    }).isRequired,
+    onClose: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
+};
 
 export default DeleteExpense;
+
