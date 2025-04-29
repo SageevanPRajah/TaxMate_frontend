@@ -126,12 +126,6 @@ const IndexLiabilities = () => {
                         <MdOutlineAddBox className='mr-2' />
                         Add Liability
                     </Link>
-                    <button
-                        onClick={generatePDF}
-                        className="ml-4 bg-blue-600 hover:bg-blue-800 text-white py-2 px-4 rounded flex items-center"
-                    >
-                        Generate PDF
-                    </button>
                 </div>
             </div>
 
@@ -171,8 +165,23 @@ const IndexLiabilities = () => {
                             Reset
                         </button>
                     </div>
+                    {/* Buttons for generating PDF and Reset Filter */}
+            {filteredLiabilities.length > 0 && (
+                <div className='flex items-end gap-2'>
+                    <button
+                        onClick={generatePDF}
+                        className="ml-4 bg-red-600 hover:bg-red-800 text-white py-2 px-4 rounded flex items-center"
+                    >
+                        Generate PDF
+                    </button>
+
+                   
+                </div>
+            )}
                 </div>
             </div>
+
+            
 
             {loading ? (
                 <Spinner />
