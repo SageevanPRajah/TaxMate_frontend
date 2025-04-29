@@ -20,22 +20,58 @@ const EditAssets = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
 
-    // Format date to yyyy-MM-dd for HTML date input
+    const validateField = (name, value) => {
+        const errors = {...formErrors};
+        
+        switch(name) {
+            case 'assetName':
+                if (!value.trim()) errors.assetName = 'Asset name is required';
+                else delete errors.assetName;
+                break;
+            case 'assetValue':
+                if (!value) errors.assetValue = 'Asset value is required';
+                else if (isNaN(value) || parseFloat(value) < 0) errors.assetValue = 'Must be a positive number';
+                else delete errors.assetValue;
+                break;
+            case 'category':
+                if (!value) errors.category = 'Category is required';
+                else delete errors.category;
+                break;
+            case 'changeType':
+                if (!value) errors.changeType = 'Change type is required';
+                else delete errors.changeType;
+                break;
+            case 'percentage':
+                if (!value) errors.percentage = 'Percentage is required';
+                else if (isNaN(value) || parseFloat(value) < 0 || parseFloat(value) > 100) 
+                    errors.percentage = 'Must be between 0-100';
+                else delete errors.percentage;
+                break;
+            case 'date':
+                if (!value) errors.date = 'Date is required';
+                else delete errors.date;
+                break;
+            default:
+                break;
+        }
+
+        setFormErrors(errors);
+    };
+
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
         return date.toISOString().split('T')[0];
     };
 
-    // Fetch existing asset data
     useEffect(() => {
         setLoading(true);
         const fetchAsset = async () => {
             try {
                 const response = await axios.get(`http://localhost:5559/asset/${id}`);
                 const assetData = response.data;
-                // Format the date for the input
                 setAsset({
                     ...assetData,
                     date: formatDateForInput(assetData.date)
@@ -50,7 +86,6 @@ const EditAssets = () => {
         fetchAsset();
     }, [id]);
 
-    // Calculate amount when assetValue or percentage changes
     useEffect(() => {
         if (asset.assetValue && asset.percentage) {
             const value = parseFloat(asset.assetValue);
@@ -69,24 +104,37 @@ const EditAssets = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         
-        // Percentage validation
         if (name === 'percentage') {
             const numValue = parseFloat(value);
-            if (numValue < 0 || numValue > 100) return;
-            setAsset(prev => ({ ...prev, [name]: value }));
-            return;
+            if (isNaN(numValue) || numValue < 0 || numValue > 100) return;
         }
         
-        // Prevent negative numbers for specific fields
         if (name === 'assetValue') {
-            if (value < 0) return;
+            const numValue = parseFloat(value);
+            if (isNaN(numValue) || numValue < 0) return;
         }
 
         setAsset((prev) => ({ ...prev, [name]: value }));
+        validateField(name, value);
+    };
+
+    const validateForm = () => {
+        const errors = {};
+        if (!asset.assetName.trim()) errors.assetName = 'Asset name is required';
+        if (!asset.assetValue) errors.assetValue = 'Asset value is required';
+        if (!asset.category) errors.category = 'Category is required';
+        if (!asset.changeType) errors.changeType = 'Change type is required';
+        if (!asset.percentage) errors.percentage = 'Percentage is required';
+        if (!asset.date) errors.date = 'Date is required';
+        
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
+        
         setLoading(true);
         setError(null);
 
@@ -108,7 +156,7 @@ const EditAssets = () => {
                     <h2 className='text-3xl font-bold text-center mb-6 text-gray-800'>Edit Asset</h2>
                     {error && <p className='text-red-500 text-center mb-3'>{error}</p>}
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} noValidate>
                         <div className='grid grid-cols-1 gap-4'>
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Asset ID</label>
@@ -130,23 +178,11 @@ const EditAssets = () => {
                                     name='assetName' 
                                     placeholder='Enter Asset Name' 
                                     value={asset.assetName || ''}
-                                    className='p-3 border border-gray-300 rounded w-full' 
-                                    onChange={handleChange} 
-                                    required 
+                                    className={`p-3 border ${formErrors.assetName ? 'border-red-500' : 'border-gray-300'} rounded w-full`} 
+                                    onChange={handleChange}
                                 />
+                                {formErrors.assetName && <p className="text-red-500 text-xs mt-1">{formErrors.assetName}</p>}
                             </div>
-
-                            {/* <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
-                                <textarea 
-                                    name='description' 
-                                    placeholder='Enter Asset Description' 
-                                    value={asset.description || ''}
-                                    className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
-                                    onChange={handleChange} 
-                                    required 
-                                />
-                            </div> */}
 
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Asset Value</label>
@@ -157,48 +193,41 @@ const EditAssets = () => {
                                         name="assetValue" 
                                         placeholder="Enter Asset Value" 
                                         value={asset.assetValue || ''}
-                                        className="p-3 w-full outline-none" 
-                                        onChange={handleChange} 
-                                        required 
-                                        min="0" 
-                                        step="1"
-                                        onKeyDown={(e) => {
-                                            if (['e', 'E', '-', '.'].includes(e.key)) {
-                                                e.preventDefault();
-                                            }
-                                        }}
+                                        className={`p-3 w-full outline-none ${formErrors.assetValue ? 'border-red-500' : ''}`} 
+                                        onChange={handleChange}
                                     />
                                 </div>
+                                {formErrors.assetValue && <p className="text-red-500 text-xs mt-1">{formErrors.assetValue}</p>}
                             </div>
                             
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Category</label>
                                 <select
                                     name="category"
-                                    className="p-3 border border-gray-300 rounded w-full"
+                                    className={`p-3 border ${formErrors.category ? 'border-red-500' : 'border-gray-300'} rounded w-full`}
                                     onChange={handleChange}
                                     value={asset.category || ''}
-                                    required
                                 >
                                     <option value="">Select Category</option>
                                     <option value="Current">Current</option>
                                     <option value="Non-Current">Non-Current</option>
                                 </select>
+                                {formErrors.category && <p className="text-red-500 text-xs mt-1">{formErrors.category}</p>}
                             </div>
 
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Change Type</label>
                                 <select
                                     name="changeType"
-                                    className="p-3 border border-gray-300 rounded w-full"
+                                    className={`p-3 border ${formErrors.changeType ? 'border-red-500' : 'border-gray-300'} rounded w-full`}
                                     onChange={handleChange}
                                     value={asset.changeType || ''}
-                                    required
                                 >
                                     <option value="">Select Change Type</option>
                                     <option value="Increase">Increase</option>
                                     <option value="Decrease">Decrease</option>
                                 </select>
+                                {formErrors.changeType && <p className="text-red-500 text-xs mt-1">{formErrors.changeType}</p>}
                             </div>
 
                             <div>
