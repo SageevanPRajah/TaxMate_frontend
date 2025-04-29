@@ -26,6 +26,8 @@ const CreateExpense = () => {
 
     if (!expense.expenseName || expense.expenseName.length < 3) {
       errors.expenseName = "Expense Name must be at least 3 characters.";
+    } else if (/^\d+$/.test(expense.expenseName)) {
+      errors.expenseName = "Expense Name cannot be only numbers.";
     }
 
     if (!expense.expenseCategory) {
@@ -86,7 +88,7 @@ const CreateExpense = () => {
 
               {/* Expense ID */}
               <div>
-                <label className='block mb-1 text-sm font-medium text-gray-700'>Expense ID</label>
+                <label className='block mb-1 text-sm font-medium text-gray-700'>User ID</label>
                 <input
                   type='text'
                   name='expenseID'
@@ -122,7 +124,8 @@ const CreateExpense = () => {
                   className='p-3 border border-gray-300 rounded w-full'
                   value={expense.expenseCategory}
                   onChange={handleChange}
-                  required>
+                  required
+                >
                   <option value='' disabled>Select Expense Category</option>
                   <option value='Others'>Default</option>
                   <option value='Medical Expenses'>Medical Expenses</option>
@@ -176,7 +179,8 @@ const CreateExpense = () => {
             <button
               type='submit'
               className='mt-4 w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all'
-              disabled={loading}>
+              disabled={loading}
+            >
               {loading ? 'Submitting...' : 'Submit'}
             </button>
           </form>

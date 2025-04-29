@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Dashboard from '../../components/Dashboard';
@@ -83,7 +83,7 @@ const ViewExpense = () => {
             <div className="space-y-6">
               <div className="p-4 rounded-lg bg-gray-50 shadow-md">
                 <p className="text-lg">
-                  <strong className="text-gray-700">Expense ID:</strong> {expense.expenseID}
+                  <strong className="text-gray-700">User ID:</strong> {expense.expenseID}
                 </p>
                 <p className="text-lg">
                   <strong className="text-gray-700">Expense Name:</strong> {expense.expenseName}
