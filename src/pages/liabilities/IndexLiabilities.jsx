@@ -9,6 +9,7 @@ import 'jspdf-autotable';
 import Spinner from '../../components/Spinner';
 import Dashboard from '../../components/Dashboard';
 import DeleteModal from './DeleteLiabilities';
+import { set } from 'react-hook-form';
 
 const IndexLiabilities = () => { 
     const [liabilities, setLiabilities] = useState([]);
@@ -17,6 +18,7 @@ const IndexLiabilities = () => {
     const [liabilityToDelete, setLiabilityToDelete] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [isFiltered, setIsFiltered] = useState(false);
 
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -67,12 +69,14 @@ const IndexLiabilities = () => {
         });
 
         setFilteredLiabilities(filtered);
+        setIsFiltered(true);
     };
 
     const resetFilters = () => {
         setStartDate('');
         setEndDate('');
         setFilteredLiabilities(liabilities);
+        setIsFiltered(false);
     };
 
     const generatePDF = () => {
@@ -114,12 +118,6 @@ const IndexLiabilities = () => {
                         <MdOutlineAddBox className='mr-2' />
                         Add Liability
                     </Link>
-                    <button
-                        onClick={generatePDF}
-                        className="ml-4 bg-blue-600 hover:bg-blue-800 text-white py-2 px-4 rounded flex items-center"
-                    >
-                        Generate PDF
-                    </button>
                 </div>
             </div>
 
@@ -158,8 +156,23 @@ const IndexLiabilities = () => {
                             Reset
                         </button>
                     </div>
+                    {/* Buttons for generating PDF and Reset Filter */}
+                    {isFiltered && (
+                        <div className='flex items-end gap-2'>
+                            <button
+                                onClick={generatePDF}
+                                className="ml-4 bg-red-600 hover:bg-red-800 text-white py-2 px-4 rounded flex items-center"
+                            >
+                                Generate PDF
+                            </button>
+
+                        
+                        </div>
+                    )}
                 </div>
             </div>
+
+            
 
             {loading ? (
                 <Spinner />
