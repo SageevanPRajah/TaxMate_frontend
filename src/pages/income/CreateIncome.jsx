@@ -26,6 +26,8 @@ const CreateIncome = () => {
 
         if (!income.incomeName || income.incomeName.length < 3) {
             errors.incomeName = "Income Name must be at least 3 characters.";
+        } else if (/^\d+$/.test(income.incomeName)) {
+            errors.incomeName = "Income Name cannot be only numbers.";
         }
 
         if (!income.incomeType) {
@@ -89,7 +91,7 @@ const CreateIncome = () => {
 
                             {/* Income ID */}
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Income ID</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">User ID</label>
                                 <input
                                     type="text"
                                     name="incomeID"

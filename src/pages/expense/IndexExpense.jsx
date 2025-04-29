@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { BsInfoCircle } from 'react-icons/bs';
 import { MdOutlineAddBox, MdOutlineDelete } from 'react-icons/md';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import Spinner from '../../components/Spinner';
 import Dashboard from '../../components/Dashboard';
 import DeleteExpense from './DeleteExpense';
-
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 const IndexExpense = () => {
   const [expenses, setExpenses] = useState([]);
@@ -23,15 +22,34 @@ const IndexExpense = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios.get('http://localhost:5559/expense')
-      .then(response => {
-        const data = response.data.data || response.data;
-        setExpenses(data);
-        setFilteredExpenses(data);
+
+    const fetchExpenses = axios.get('http://localhost:5559/expense');
+    const fetchLiabilities = axios.get('http://localhost:5559/liability');
+
+    Promise.all([fetchExpenses, fetchLiabilities])
+      .then(([expenseResponse, liabilityResponse]) => {
+        const expensesData = expenseResponse.data.data || expenseResponse.data;
+        const liabilitiesData = liabilityResponse.data.data || liabilityResponse.data;
+
+        const mappedLiabilities = liabilitiesData
+          .filter(lia => lia.status === 'Paid')
+          .map(lia => ({
+            _id: lia._id,
+            expenseName: lia.liabilityName,
+            expenseCategory: lia.type,
+            expenseAmount: lia.amount,
+            date: lia.dueDate,
+            isLiability: true,
+          }));
+
+        const combinedData = [...expensesData, ...mappedLiabilities];
+
+        setExpenses(combinedData);
+        setFilteredExpenses(combinedData);
         setLoading(false);
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         setLoading(false);
       });
   }, []);
@@ -50,8 +68,8 @@ const IndexExpense = () => {
       return;
     }
 
-    const filtered = expenses.filter(exp => {
-      const date = new Date(exp.date);
+    const filtered = expenses.filter(item => {
+      const date = new Date(item.date);
       const afterStart = startDate ? date >= new Date(startDate) : true;
       const beforeEnd = endDate ? date <= new Date(endDate) : true;
       return afterStart && beforeEnd;
@@ -70,72 +88,91 @@ const IndexExpense = () => {
 
   const getCategoryTotals = () => {
     const totals = {};
-    filteredExpenses.forEach(exp => {
-      const cat = exp.expenseCategory || 'Uncategorized';
-      const amt = Number(exp.expenseAmount) || 0;
-      totals[cat] = (totals[cat] || 0) + amt;
+
+    filteredExpenses.forEach(item => {
+      const category = item.expenseCategory || 'Uncategorized';
+      const amount = Number(item.expenseAmount) || 0;
+
+      if (totals[category]) {
+        totals[category] += amount;
+      } else {
+        totals[category] = amount;
+      }
     });
+
     return totals;
   };
 
   const getTotalExpense = () => {
-    return filteredExpenses.reduce((sum, exp) => sum + (Number(exp.expenseAmount) || 0), 0);
-  };
-
-  const generatePDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("Expense Report", 14, 22);
-    doc.setFontSize(12);
-    doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 30);
-
-    const rows = filteredExpenses.map((exp, i) => [
-      i + 1,
-      exp.expenseName,
-      exp.expenseCategory,
-      exp.expenseAmount,
-      new Date(exp.date).toISOString().split('T')[0]
-    ]);
-
-    doc.autoTable({ head: [["No", "Name", "Category", "Amount", "Date"]], body: rows, startY: 40 });
-
-    const summaryY = doc.previousAutoTable.finalY + 10;
-    const summary = Object.entries(getCategoryTotals()).map(([cat, amt]) => [
-      cat, `Rs. ${amt.toFixed(2)}`
-    ]);
-    summary.push(["Total Expense", `Rs. ${getTotalExpense().toFixed(2)}`]);
-
-    doc.setFontSize(14);
-    doc.text("Summary Table", 14, summaryY);
-    doc.autoTable({
-      head: [["Category", "Total Amount"]],
-      body: summary,
-      startY: summaryY + 5,
-    });
-
-    doc.save(`Expense_Report_${startDate}_to_${endDate}.pdf`);
+    return filteredExpenses.reduce((sum, item) => {
+      return sum + (Number(item.expenseAmount) || 0);
+    }, 0);
   };
 
   const generateCSV = () => {
     let csv = "No,Name,Category,Amount,Date\n";
-    csv += filteredExpenses.map((exp, i) =>
-      `${i + 1},${exp.expenseName},${exp.expenseCategory},${exp.expenseAmount},${new Date(exp.date).toISOString().split("T")[0]}`
+    csv += filteredExpenses.map((item, index) =>
+      `${index + 1},"${item.expenseName}","${item.expenseCategory}",${item.expenseAmount},"${new Date(item.date).toLocaleDateString()}"`
     ).join("\n");
-
-    csv += "\n\nSummary Table\nCategory,Total Amount\n";
-    Object.entries(getCategoryTotals()).forEach(([cat, amt]) => {
-      csv += `${cat},Rs. ${amt.toFixed(2)}\n`;
-    });
-    csv += `Total Expense,Rs. ${getTotalExpense().toFixed(2)}\n`;
 
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Expense_Report_${startDate}_to_${endDate}.csv`;
+    link.download = `Expense_Report_${startDate || 'All'}_to_${endDate || 'All'}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Expense Report", 14, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Date Range: ${startDate || 'All'} to ${endDate || 'All'}`, 14, 30);
+
+    const expenseRows = filteredExpenses.map((item, index) => [
+      index + 1,
+      item.expenseName,
+      item.expenseCategory,
+      item.expenseAmount,
+      new Date(item.date).toLocaleDateString()
+    ]);
+
+    doc.autoTable({
+      startY: 40,
+      head: [["No", "Name", "Category", "Amount", "Date"]],
+      body: expenseRows,
+      theme: 'striped',
+      headStyles: { fillColor: [41, 128, 185] },
+    });
+
+    const summaryRows = Object.entries(getCategoryTotals()).map(([category, amount]) => [
+      category,
+      `Rs. ${amount.toFixed(2)}`
+    ]);
+
+    summaryRows.push([
+      "Total Expense",
+      `Rs. ${getTotalExpense().toFixed(2)}`
+    ]);
+
+    const summaryY = doc.previousAutoTable.finalY + 10;
+
+    doc.setFontSize(16);
+    doc.text("Summary Table", 14, summaryY);
+
+    doc.autoTable({
+      startY: summaryY + 5,
+      head: [["Category", "Total Amount"]],
+      body: summaryRows,
+      theme: 'striped',
+      headStyles: { fillColor: [41, 128, 185] },
+    });
+
+    doc.save(`Expense_Report_${startDate || 'All'}_to_${endDate || 'All'}.pdf`);
   };
 
   return (
@@ -146,14 +183,21 @@ const IndexExpense = () => {
           <div className="flex flex-wrap gap-2">
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="border rounded px-3 py-2" />
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="border rounded px-3 py-2" />
-            <button onClick={handleFilter} className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded">Filter</button>
-            {(startDate || endDate) && (
-              <button onClick={handleClearFilter} className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded">Clear</button>
-            )}
+            <button onClick={handleFilter} className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded">
+              Filter
+            </button>
+
             {isFiltered && (
               <>
-                <button onClick={generateCSV} className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded">Generate CSV</button>
-                <button onClick={generatePDF} className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded">Generate PDF</button>
+                <button onClick={handleClearFilter} className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded">
+                  Clear
+                </button>
+                <button onClick={generateCSV} className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded">
+                  Generate CSV
+                </button>
+                <button onClick={generatePDF} className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded">
+                  Generate PDF
+                </button>
               </>
             )}
           </div>
@@ -167,14 +211,11 @@ const IndexExpense = () => {
 
       {loading ? (
         <Spinner />
-      ) : filteredExpenses.length === 0 ? (
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <p className="text-center text-gray-500">No expenses found for selected date range.</p>
-        </div>
       ) : (
         <>
+          {/* Combined Table */}
           <div className="bg-white shadow-md rounded-lg p-6 mb-10">
-            <h2 className="text-xl font-semibold mb-4">Expense Table</h2>
+            <h2 className="text-xl font-semibold mb-4">Combined Table</h2>
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-200">
@@ -187,39 +228,56 @@ const IndexExpense = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredExpenses.map((exp, i) => (
-                  <tr key={exp._id} className="border-b">
-                    <td className="p-3">{i + 1}</td>
-                    <td className="p-3">{exp.expenseName}</td>
-                    <td className="p-3">{exp.expenseCategory}</td>
-                    <td className="p-3">Rs.{exp.expenseAmount}</td>
-                    <td className="p-3">{new Date(exp.date).toISOString().split('T')[0]}</td>
-                    <td className="p-3 flex gap-2">
-                      <Link to={`/expense/detail/${exp._id}`} className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded"><BsInfoCircle /></Link>
-                      <Link to={`/expense/edit/${exp._id}`} className="bg-yellow-500 hover:bg-yellow-700 text-white py-1 px-3 rounded"><AiOutlineEdit /></Link>
-                      <button onClick={() => setSelectedExpense(exp)} className="bg-red-500 hover:bg-red-700 text-white py-1 px-3 rounded"><MdOutlineDelete /></button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredExpenses.length > 0 ? (
+                  filteredExpenses.map((item, i) => (
+                    <tr key={item._id || i} className="border-b">
+                      <td className="p-3">{i + 1}</td>
+                      <td className="p-3">{item.expenseName}</td>
+                      <td className="p-3">{item.expenseCategory}</td>
+                      <td className="p-3">Rs. {item.expenseAmount}</td>
+                      <td className="p-3">{new Date(item.date).toLocaleDateString()}</td>
+                      <td className="p-3 flex gap-2">
+                        {!item.isLiability && (
+                          <>
+                            <Link to={`/expense/detail/${item._id}`} className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded"><BsInfoCircle /></Link>
+                            <Link to={`/expense/edit/${item._id}`} className="bg-yellow-500 hover:bg-yellow-700 text-white py-1 px-3 rounded"><AiOutlineEdit /></Link>
+                            <button onClick={() => setSelectedExpense(item)} className="bg-red-500 hover:bg-red-700 text-white py-1 px-3 rounded"><MdOutlineDelete /></button>
+                          </>
+                        )}
+                        {item.isLiability && (
+                          <Link
+                            to={`/liabilities?liabilityId=${item._id}`}
+                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-4 rounded"
+                          >
+                            View Location
+                          </Link>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr><td colSpan="6" className="p-3 text-center">No records found.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
 
+          {/* Summary Table */}
           {isFiltered && (
-            <div className="bg-white shadow-md rounded-lg p-6">
+            <div className="bg-white shadow-md rounded-lg p-6 mt-8">
               <h2 className="text-xl font-semibold mb-4">Summary Table</h2>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-gray-100">
+                  <tr className="bg-gray-200">
                     <th className="p-3 text-left">Category</th>
                     <th className="p-3 text-left">Total Amount</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(getCategoryTotals()).map(([cat, amt]) => (
-                    <tr key={cat} className="border-b">
-                      <td className="p-3">{cat}</td>
-                      <td className="p-3">Rs. {amt.toFixed(2)}</td>
+                  {Object.entries(getCategoryTotals()).map(([category, total], index) => (
+                    <tr key={index} className="border-b">
+                      <td className="p-3">{category}</td>
+                      <td className="p-3">Rs. {total.toFixed(2)}</td>
                     </tr>
                   ))}
                   <tr className="font-bold bg-gray-200">

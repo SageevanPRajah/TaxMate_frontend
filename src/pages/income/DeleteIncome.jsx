@@ -1,5 +1,5 @@
-import React from "react";
 import axios from "axios";
+import PropTypes from "prop-types";
 
 const DeleteIncome = ({ income, onClose, onDelete }) => {
     const handleDelete = async () => {
@@ -37,5 +37,13 @@ const DeleteIncome = ({ income, onClose, onDelete }) => {
         </div>
     );
     };
+DeleteIncome.propTypes = {
+    income: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        incomeName: PropTypes.string.isRequired,
+    }).isRequired,
+    onClose: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
+};
 
 export default DeleteIncome;
