@@ -91,9 +91,9 @@ const App = () => {
       <Route path="/taxRelief/deleteTaxRelief/:id" element={<DeleteTaxRelief />} />
         
       {/** TaxRate */}
-      <Route path="/taxRelief/addTaxRate" element={<AddTaxRate />} />   
-      <Route path="/taxRelief/editTaxRate/:id" element={<EditTaxRate />} />
-      <Route path="/taxRelief/deleteTaxRate/:id" element={<DeleteTaxRate />} /> 
+      <Route path="/taxRate/addTaxRate" element={<AddTaxRate />} />   
+      <Route path="/taxRate/editTaxRate/:id" element={<EditTaxRate />} />
+      <Route path="/taxRate/deleteTaxRate/:id" element={<DeleteTaxRate />} /> 
       <Route path="/taxRate" element={<TaxRate />} /> 
 
       {/** Gihan */}
