@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Dashboard from "../../components/Dashboard.jsx";
@@ -41,6 +41,8 @@ const EditExpense = () => {
 
     if (!expense.expenseName || expense.expenseName.length < 3) {
       errors.expenseName = "Expense Name must be at least 3 characters.";
+    } else if (/^\d+$/.test(expense.expenseName)) {
+      errors.expenseName = "Expense Name cannot be only numbers.";
     }
 
     if (!expense.expenseCategory) {
@@ -101,7 +103,7 @@ const EditExpense = () => {
 
               {/* Expense ID - Read Only */}
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">Expense ID</label>
+                <label className="block mb-1 text-sm font-medium text-gray-700">User ID</label>
                 <input
                   type="text"
                   name="expenseID"

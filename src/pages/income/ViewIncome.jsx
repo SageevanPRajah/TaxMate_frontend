@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Dashboard from '../../components/Dashboard';
@@ -83,7 +83,7 @@ const ViewIncome = () => {
             <div className="space-y-6">
               <div className="p-4 rounded-lg bg-gray-50 shadow-md">
                 <p className="text-lg">
-                  <strong className="text-gray-700">Income ID:</strong> {income.incomeID}
+                  <strong className="text-gray-700">User ID:</strong> {income.incomeID}
                 </p>
                 <p className="text-lg">
                   <strong className="text-gray-700">Income Name:</strong> {income.incomeName}
