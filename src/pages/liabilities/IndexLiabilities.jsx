@@ -9,6 +9,7 @@ import 'jspdf-autotable';
 import Spinner from '../../components/Spinner';
 import Dashboard from '../../components/Dashboard';
 import DeleteModal from './DeleteLiabilities';
+import { set } from 'react-hook-form';
 
 const IndexLiabilities = () => { 
     const [liabilities, setLiabilities] = useState([]);
@@ -17,6 +18,7 @@ const IndexLiabilities = () => {
     const [liabilityToDelete, setLiabilityToDelete] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [isFiltered, setIsFiltered] = useState(false);
 
     const fetchLiabilities = async () => {
         axios.get('http://localhost:5559/liability')
@@ -67,6 +69,7 @@ const IndexLiabilities = () => {
         });
 
         setFilteredLiabilities(filtered);
+        setIsFiltered(true);
     };
 
     // Reset filters
@@ -74,6 +77,7 @@ const IndexLiabilities = () => {
         setStartDate('');
         setEndDate('');
         setFilteredLiabilities(liabilities);
+        setIsFiltered(false);
     };
 
     // Generate PDF Function
@@ -166,18 +170,18 @@ const IndexLiabilities = () => {
                         </button>
                     </div>
                     {/* Buttons for generating PDF and Reset Filter */}
-            {filteredLiabilities.length > 0 && (
-                <div className='flex items-end gap-2'>
-                    <button
-                        onClick={generatePDF}
-                        className="ml-4 bg-red-600 hover:bg-red-800 text-white py-2 px-4 rounded flex items-center"
-                    >
-                        Generate PDF
-                    </button>
+                    {isFiltered && (
+                        <div className='flex items-end gap-2'>
+                            <button
+                                onClick={generatePDF}
+                                className="ml-4 bg-red-600 hover:bg-red-800 text-white py-2 px-4 rounded flex items-center"
+                            >
+                                Generate PDF
+                            </button>
 
-                   
-                </div>
-            )}
+                        
+                        </div>
+                    )}
                 </div>
             </div>
 
