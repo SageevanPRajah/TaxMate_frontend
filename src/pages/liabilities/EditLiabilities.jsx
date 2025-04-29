@@ -17,12 +17,17 @@ const EditLiabilities = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         setLoading(true);
         axios.get(`http://localhost:5559/liability/${id}`)
             .then((response) => {
-                setLiability(response.data);
+                const fetchedLiability = response.data;
+                if (fetchedLiability.dueDate) {
+                    fetchedLiability.dueDate = new Date(fetchedLiability.dueDate).toISOString().split('T')[0];
+                }
+                setLiability(fetchedLiability);
                 setLoading(false);
             })
             .catch((error) => {
@@ -32,13 +37,63 @@ const EditLiabilities = () => {
             });
     }, [id]);
 
+    const validateField = (name, value) => {
+        const newErrors = {...errors};
+        
+        switch(name) {
+            case 'liabilityName':
+                if (!value.trim()) newErrors.liabilityName = 'Liability name is required';
+                else delete newErrors.liabilityName;
+                break;
+            case 'type':
+                if (!value) newErrors.type = 'Type is required';
+                else delete newErrors.type;
+                break;
+            case 'amount':
+                if (!value || isNaN(value) || parseFloat(value) <= 0) 
+                    newErrors.amount = 'Amount must be greater than 0';
+                else delete newErrors.amount;
+                break;
+            case 'dueDate':
+                if (!value) newErrors.dueDate = 'Due date is required';
+                else delete newErrors.dueDate;
+                break;
+            case 'status':
+                if (!value) newErrors.status = 'Status is required';
+                else delete newErrors.status;
+                break;
+            case 'description':
+                if (!value.trim()) newErrors.description = 'Description is required';
+                else delete newErrors.description;
+                break;
+            default:
+                break;
+        }
+
+        setErrors(newErrors);
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setLiability((prev) => ({ ...prev, [name]: value }));
+        validateField(name, value);
+    };
+
+    const validateForm = () => {
+        const requiredFields = ['liabilityName', 'type', 'amount', 'dueDate', 'status', 'description'];
+        requiredFields.forEach(field => {
+            validateField(field, liability[field]);
+        });
+        return Object.keys(errors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -81,22 +136,19 @@ const EditLiabilities = () => {
                                     name='liabilityName' 
                                     placeholder='Enter Liability Name' 
                                     value={liability.liabilityName}
-                                    className='p-3 border border-gray-300 rounded w-full' 
-                                    onChange={handleChange} 
-                                    required 
+                                    className={`p-3 border ${errors.liabilityName ? 'border-red-500' : 'border-gray-300'} rounded w-full`} 
+                                    onChange={handleChange}
                                 />
+                                {errors.liabilityName && <p className="text-red-500 text-xs mt-1">{errors.liabilityName}</p>}
                             </div>
 
-                            
-                            
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Type</label>
                                 <select
                                     name="type"
-                                    className="p-3 border border-gray-300 rounded w-full"
+                                    className={`p-3 border ${errors.type ? 'border-red-500' : 'border-gray-300'} rounded w-full`}
                                     onChange={handleChange}
                                     value={liability.type}
-                                    required
                                 >
                                     <option value="">Select Type</option>
                                     <option value="Mortgage">Mortgage</option>
@@ -104,11 +156,12 @@ const EditLiabilities = () => {
                                     <option value="Credit Card">Credit Card</option>
                                     <option value="Other">Other</option>
                                 </select>
+                                {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type}</p>}
                             </div>
 
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Amount</label>
-                                <div className="flex items-center border border-gray-300 rounded w-full overflow-hidden">
+                                <div className={`flex items-center border ${errors.amount ? 'border-red-500' : 'border-gray-300'} rounded w-full overflow-hidden`}>
                                     <span className="px-3 text-gray-500 bg-gray-100">Rs.</span>
                                     <input 
                                         type="number" 
@@ -116,10 +169,7 @@ const EditLiabilities = () => {
                                         placeholder="Enter Amount" 
                                         value={liability.amount}
                                         className="p-3 w-full outline-none" 
-                                        onChange={handleChange} 
-                                        required 
-                                        min="0" 
-                                        step="1"
+                                        onChange={handleChange}
                                         onKeyDown={(e) => {
                                             if (['e', 'E', '-', '.'].includes(e.key)) {
                                                 e.preventDefault();
@@ -127,6 +177,7 @@ const EditLiabilities = () => {
                                         }}
                                     />
                                 </div>
+                                {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
                             </div>
                             
                             <div>
@@ -136,40 +187,39 @@ const EditLiabilities = () => {
                                     name='dueDate' 
                                     placeholder='Select Due Date' 
                                     value={liability.dueDate}
-                                    className='p-3 border border-gray-300 rounded w-full' 
-                                    onChange={handleChange} 
-                                    required 
+                                    className={`p-3 border ${errors.dueDate ? 'border-red-500' : 'border-gray-300'} rounded w-full`} 
+                                    onChange={handleChange}
                                 />
+                                {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate}</p>}
                             </div>
                             
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Status</label>
                                 <select
                                     name="status"
-                                    className="p-3 border border-gray-300 rounded w-full"
+                                    className={`p-3 border ${errors.status ? 'border-red-500' : 'border-gray-300'} rounded w-full`}
                                     onChange={handleChange}
                                     value={liability.status}
-                                    required
                                 >
                                     <option value="">Select Status</option>
                                     <option value="Active">Active</option>
                                     <option value="Paid">Paid</option>
-                                    <option value="Overdue">Overdue</option>
                                 </select>
+                                {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
                             </div>
                         </div>
 
                         <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
-                                <textarea 
-                                    name='description' 
-                                    placeholder='Enter Liability Description' 
-                                    value={liability.description}
-                                    className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
-                                    onChange={handleChange} 
-                                    required 
-                                />
-                            </div>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
+                            <textarea 
+                                name='description' 
+                                placeholder='Enter Liability Description' 
+                                value={liability.description}
+                                className={`p-3 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded w-full h-24 resize-none`} 
+                                onChange={handleChange}
+                            />
+                            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                        </div>
 
                         <div className='flex gap-4 mt-6'>
                             <button 

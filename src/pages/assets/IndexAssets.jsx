@@ -17,6 +17,7 @@ const IndexAssets = () => {
     const [assetToDelete, setAssetToDelete] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [isFiltered, setIsFiltered] = useState(false); // New state to track if filtering is applied
 
     const fetchAssets = async () => {
         axios.get('http://localhost:5559/asset')
@@ -50,6 +51,7 @@ const IndexAssets = () => {
     const filterByDate = () => {
         if (!startDate && !endDate) {
             setFilteredAssets(assets);
+            setIsFiltered(false); // No filter applied
             return;
         }
 
@@ -67,6 +69,7 @@ const IndexAssets = () => {
         });
 
         setFilteredAssets(filtered);
+        setIsFiltered(true); // Filter is applied
     };
 
     // Reset filters
@@ -74,6 +77,7 @@ const IndexAssets = () => {
         setStartDate('');
         setEndDate('');
         setFilteredAssets(assets);
+        setIsFiltered(false); // No filter applied
     };
 
     // Generate PDF Function
@@ -123,16 +127,10 @@ const IndexAssets = () => {
             <div className='flex justify-between items-center mb-4'>
                 <h1 className='text-3xl font-bold'>Asset List</h1>
                 <div className='flex'>
-                    <Link to='/assets/create' className='bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded flex items-center'>
+                    <Link to='/assets/create' className='bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded flex items-center'>
                         <MdOutlineAddBox className='mr-2' />
                         Add Asset
                     </Link>
-                    <button
-                        onClick={generatePDF}
-                        className="ml-4 bg-green-600 hover:bg-green-800 text-white py-2 px-4 rounded flex items-center"
-                    >
-                        Generate PDF
-                    </button>
                 </div>
             </div>
 
@@ -172,9 +170,25 @@ const IndexAssets = () => {
                             Reset
                         </button>
                     </div>
+                    {isFiltered && (
+                <div className='flex items-end gap-2'>
+                    <button
+                        onClick={generatePDF}
+                        className="bg-red-600 hover:bg-red-800 text-white py-2 px-4 rounded flex items-center"
+                    >
+                        Generate PDF
+                    </button>
+
+                    {/* Reset button aligned to the right */}
+                    
+                </div>
+            )}
+
                 </div>
             </div>
 
+            {/* Conditionally Render Generate PDF Button */}
+            
             {loading ? (
                 <Spinner />
             ) : (

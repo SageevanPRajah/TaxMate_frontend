@@ -10,26 +10,24 @@ const CreateLiability = () => {
         liabilityName: '',
         type: '',
         amount: '',
-        dueDate: '', 
+        dueDate: '',
         status: '',
         description: ''
     });
 
+    const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Fetch the latest liability ID when component mounts
     useEffect(() => {
         const fetchLatestLiabilityID = async () => {
             try {
                 const response = await axios.get('http://localhost:5559/liability');
                 const liabilities = response.data.data || response.data;
-                
+
                 if (liabilities.length === 0) {
-                    // If no liabilities exist, start with LIABILITY001
                     setLiability(prev => ({ ...prev, liabilityID: 'LIABILITY001' }));
                 } else {
-                    // Find the highest liability ID number
                     const latestLiability = liabilities.reduce((latest, current) => {
                         const latestNum = parseInt(latest.liabilityID.replace('LIABILITY', ''));
                         const currentNum = parseInt(current.liabilityID.replace('LIABILITY', ''));
@@ -39,12 +37,11 @@ const CreateLiability = () => {
                     const latestNum = parseInt(latestLiability.liabilityID.replace('LIABILITY', ''));
                     const nextNum = latestNum + 1;
                     const nextLiabilityID = `LIABILITY${String(nextNum).padStart(3, '0')}`;
-                    
+
                     setLiability(prev => ({ ...prev, liabilityID: nextLiabilityID }));
                 }
             } catch (error) {
                 console.error('Error fetching latest Liability ID:', error);
-                // Fallback to a timestamp-based ID if server connection fails
                 const timestamp = new Date().getTime();
                 const fallbackID = `LIABILITY${String(timestamp).slice(-3)}`;
                 setLiability(prev => ({ ...prev, liabilityID: fallbackID }));
@@ -54,17 +51,56 @@ const CreateLiability = () => {
         fetchLatestLiabilityID();
     }, []);
 
+    const validateForm = () => {
+        const newErrors = {};
+        
+        if (!liability.liabilityName.trim()) {
+            newErrors.liabilityName = 'Liability name is required';
+        }
+
+        if (!liability.type) {
+            newErrors.type = 'Type is required';
+        }
+
+        if (!liability.amount || liability.amount <= 0) {
+            newErrors.amount = 'Amount must be greater than 0';
+        }
+
+        if (!liability.dueDate) {
+            newErrors.dueDate = 'Due date is required';
+        }
+
+        if (!liability.status) {
+            newErrors.status = 'Status is required';
+        }
+
+        if (!liability.description.trim()) {
+            newErrors.description = 'Description is required';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
-        // Liability ID is read-only, so we don't need validation for it
         if (name === 'liabilityID') return;
+        
+        // Clear error when user starts typing
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
         
         setLiability((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -109,22 +145,20 @@ const CreateLiability = () => {
                                     type='text' 
                                     name='liabilityName' 
                                     placeholder='Enter Liability Name' 
-                                    className='p-3 border border-gray-300 rounded w-full' 
+                                    className={`p-3 border ${errors.liabilityName ? 'border-red-500' : 'border-gray-300'} rounded w-full`} 
                                     onChange={handleChange} 
-                                    required 
+                                    value={liability.liabilityName}
                                 />
+                                {errors.liabilityName && <p className="text-red-500 text-xs mt-1">{errors.liabilityName}</p>}
                             </div>
 
-                           
-                            
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Type</label>
                                 <select
                                     name="type"
-                                    className="p-3 border border-gray-300 rounded w-full"
+                                    className={`p-3 border ${errors.type ? 'border-red-500' : 'border-gray-300'} rounded w-full`}
                                     onChange={handleChange}
                                     value={liability.type}
-                                    required
                                 >
                                     <option value="">Select Type</option>
                                     <option value="Mortgage">Mortgage</option>
@@ -132,11 +166,12 @@ const CreateLiability = () => {
                                     <option value="Credit Card">Credit Card</option>
                                     <option value="Other">Other</option>
                                 </select>
+                                {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type}</p>}
                             </div>
 
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Amount</label>
-                                <div className="flex items-center border border-gray-300 rounded w-full overflow-hidden">
+                                <div className={`flex items-center border ${errors.amount ? 'border-red-500' : 'border-gray-300'} rounded w-full overflow-hidden`}>
                                     <span className="px-3 text-gray-500 bg-gray-100">Rs.</span>
                                     <input 
                                         type="number" 
@@ -144,9 +179,7 @@ const CreateLiability = () => {
                                         placeholder="Enter Amount" 
                                         className="p-3 w-full outline-none" 
                                         onChange={handleChange} 
-                                        required 
-                                        min="0" 
-                                        step="1"
+                                        value={liability.amount}
                                         onKeyDown={(e) => {
                                             if (['e', 'E', '-', '.'].includes(e.key)) {
                                                 e.preventDefault();
@@ -154,33 +187,49 @@ const CreateLiability = () => {
                                         }}
                                     />
                                 </div>
+                                {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
                             </div>
-                            
+
                             <div>
                                 <label className='block text-sm font-medium text-gray-700 mb-1'>Due Date</label>
                                 <input 
                                     type='date' 
                                     name='dueDate' 
                                     placeholder='Select Due Date' 
-                                    className='p-3 border border-gray-300 rounded w-full' 
+                                    className={`p-3 border ${errors.dueDate ? 'border-red-500' : 'border-gray-300'} rounded w-full`} 
                                     onChange={handleChange} 
-                                    required 
+                                    value={liability.dueDate}
                                 />
+                                {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate}</p>}
                             </div>
-                            
-                            
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Status</label>
+                                <select
+                                    name="status"
+                                    className={`p-3 border ${errors.status ? 'border-red-500' : 'border-gray-300'} rounded w-full`}
+                                    onChange={handleChange}
+                                    value={liability.status}
+                                >
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                                {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
+                            </div>
                         </div>
 
                         <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
-                                <textarea 
-                                    name='description' 
-                                    placeholder='Enter Liability Description' 
-                                    className='p-3 border border-gray-300 rounded w-full h-24 resize-none' 
-                                    onChange={handleChange} 
-                                    required 
-                                />
-                            </div>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>Description</label>
+                            <textarea 
+                                name='description' 
+                                placeholder='Enter Liability Description' 
+                                className={`p-3 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded w-full h-24 resize-none`} 
+                                onChange={handleChange} 
+                                value={liability.description}
+                            />
+                            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                        </div>
 
                         <button 
                             type='submit' 
