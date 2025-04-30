@@ -19,15 +19,13 @@ const EditTaxRate = () => {
 
   const handleChange = (index, field, value) => {
     const updated = [...slabs];
-    updated[index][field] = value;
+    updated[index][field] = field === 'taxRate'
+      ? parseFloat(value)
+      : value;
     setSlabs(updated);
-
-   
     const newErrors = [...errors];
-    if (newErrors[index]) {
-      newErrors[index][field] = '';
-      setErrors(newErrors);
-    }
+    newErrors[index][field] = '';
+    setErrors(newErrors);
   };
 
   const validateSlabs = () => {
@@ -56,15 +54,26 @@ const EditTaxRate = () => {
       alert('Please fix validation errors before saving.');
       return;
     }
+  
     try {
-      await axios.put('http://localhost:5559/taxRate', slabs);
+      console.log(' Sending to PUT /taxRate:', slabs);
+      const response = await axios.put('http://localhost:5559/taxRate', slabs);
+      console.log('200 OK – response.body:', response.data);
       alert('Tax slabs updated successfully');
-      navigate('/taxRelief');
-    } catch (error) {
-      console.error(error);
-      alert('Update failed');
+      navigate('/taxRate');
+    } catch (err) {
+      // Log the full Axios error
+      console.error('Axios error:', err);
+      // If the server gave you a JSON error payload, log that too:
+      if (err.response && err.response.data) {
+        console.error('server said:', err.response.data);
+        alert(`Update failed: ${err.response.data.message}`);
+      } else {
+        alert(`Update failed: ${err.message}`);
+      }
     }
   };
+  
 
  
 
