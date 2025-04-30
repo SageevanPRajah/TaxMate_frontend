@@ -56,17 +56,17 @@ const EditTaxRate = () => {
     }
   
     try {
-      console.log('📤 Sending to PUT /taxRate:', slabs);
+      console.log(' Sending to PUT /taxRate:', slabs);
       const response = await axios.put('http://localhost:5559/taxRate', slabs);
-      console.log('✅ 200 OK – response.body:', response.data);
+      console.log('200 OK – response.body:', response.data);
       alert('Tax slabs updated successfully');
       navigate('/taxRate');
     } catch (err) {
       // Log the full Axios error
-      console.error('🚨 Axios error:', err);
+      console.error('Axios error:', err);
       // If the server gave you a JSON error payload, log that too:
       if (err.response && err.response.data) {
-        console.error('🚨 server said:', err.response.data);
+        console.error('server said:', err.response.data);
         alert(`Update failed: ${err.response.data.message}`);
       } else {
         alert(`Update failed: ${err.message}`);
