@@ -1,7 +1,10 @@
-import { useState } from 'react';
+// src/pages/expense/CreateExpense.jsx
+
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard.jsx';
+import useVoiceInput from '../../hooks/useVoiceInput.js';
 
 const CreateExpense = () => {
   const navigate = useNavigate();
@@ -12,65 +15,95 @@ const CreateExpense = () => {
     expenseAmount: '',
     date: '',
   });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const { listening, startListening } = useVoiceInput();
 
-  const validate = () => {
-    const errors = {};
-
-    if (!/^[a-zA-Z0-9]{3,}$/.test(expense.expenseID)) {
-      errors.expenseID = "Expense ID must be alphanumeric and at least 3 characters.";
-    }
-
-    if (!expense.expenseName || expense.expenseName.length < 3) {
-      errors.expenseName = "Expense Name must be at least 3 characters.";
-    } else if (/^\d+$/.test(expense.expenseName)) {
-      errors.expenseName = "Expense Name cannot be only numbers.";
-    }
-
-    if (!expense.expenseCategory) {
-      errors.expenseCategory = "Please select an expense category.";
-    }
-
-    if (!expense.expenseAmount || parseFloat(expense.expenseAmount) <= 0) {
-      errors.expenseAmount = "Amount must be a positive number.";
-    }
-
-    if (!expense.date) {
-      errors.date = "Please select a date.";
-    } else if (new Date(expense.date) > new Date()) {
-      errors.date = "Date cannot be in the future.";
-    }
-
-    return errors;
+  // combined record (amount + name)
+  const handleVoiceRecord = () => {
+    setError(null);
+    startListening(
+      ({ amount, name }) => {
+        setExpense(prev => ({
+          ...prev,
+          expenseAmount: amount ?? prev.expenseAmount,
+          expenseName:   name   ?? prev.expenseName,
+        }));
+        // if name parsing failed, user can use separate buttons below
+      },
+      (err) => setError(`Voice input error: ${err}`)
+    );
   };
 
-  const handleChange = (e) => {
+  // fallback: record only name
+  const handleRecordName = () => {
+    setError(null);
+    startListening(
+      ({ name }) => setExpense(prev => ({ ...prev, expenseName: name ?? prev.expenseName })),
+      (err) => setError(`Name input error: ${err}`)
+    );
+  };
+
+  // fallback: record only amount
+  const handleRecordAmount = () => {
+    setError(null);
+    startListening(
+      ({ amount }) => setExpense(prev => ({ ...prev, expenseAmount: amount ?? prev.expenseAmount })),
+      (err) => setError(`Amount input error: ${err}`)
+    );
+  };
+
+  // validation
+  const validate = data => {
+    const errs = {};
+    if (!/^[a-zA-Z0-9]{3,}$/.test(data.expenseID))
+      errs.expenseID = 'ID must be alphanumeric, ≥3 chars.';
+    if (!data.expenseName || data.expenseName.length < 3)
+      errs.expenseName = 'Name ≥3 chars.';
+    if (!data.expenseCategory)
+      errs.expenseCategory = 'Select a category.';
+    if (!data.expenseAmount || parseFloat(data.expenseAmount) <= 0)
+      errs.expenseAmount = 'Amount must be >0.';
+    if (!data.date)
+      errs.date = 'Select a date.';
+    else if (new Date(data.date) > new Date())
+      errs.date = 'Date cannot be future.';
+    return errs;
+  };
+
+  const handleChange = e => {
     const { name, value } = e.target;
-    setExpense((prev) => ({ ...prev, [name]: value }));
-    setValidationErrors((prev) => ({ ...prev, [name]: null }));
+    setExpense(prev => ({ ...prev, [name]: value }));
+    setValidationErrors(prev => ({ ...prev, [name]: null }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const errors = validate();
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
+    // defaults
+    const today = new Date().toISOString().slice(0, 10);
+    const data = {
+      ...expense,
+      date: expense.date || today,
+      expenseCategory: expense.expenseCategory || 'Default',
+    };
+
+    const errs = validate(data);
+    if (Object.keys(errs).length) {
+      setValidationErrors(errs);
       setLoading(false);
       return;
     }
 
     try {
-      await axios.post('http://localhost:5559/expense', expense);
+      await axios.post('http://localhost:5559/expense', data);
       navigate('/expense');
-    } catch (error) {
-      setError('Failed to create expense. Please try again.');
-      console.error('Error creating expense:', error);
+    } catch (err) {
+      setError('Failed to create expense.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -78,110 +111,148 @@ const CreateExpense = () => {
 
   return (
     <Dashboard>
-      <div className='flex items-center justify-center min-h-[calc(100vh-4rem)]'>
-        <div className='bg-white p-8 rounded-lg shadow-lg w-[28rem] backdrop-blur-lg'>
-          <h2 className='text-3xl font-bold text-center mb-6 text-gray-800'>Create Expense</h2>
-          {error && <p className='text-red-500 text-center mb-3'>{error}</p>}
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-[28rem] backdrop-blur-lg">
 
-          <form onSubmit={handleSubmit}>
-            <div className='grid grid-cols-1 gap-4'>
+          <h2 className="text-3xl font-bold text-center mb-4">Create Expense</h2>
+          {error && <p className="text-red-500 text-center mb-3">{error}</p>}
 
-              {/* Expense ID */}
-              <div>
-                <label className='block mb-1 text-sm font-medium text-gray-700'>User ID</label>
-                <input
-                  type='text'
-                  name='expenseID'
-                  className='p-3 border border-gray-300 rounded w-full'
-                  onChange={handleChange}
-                  required
-                />
-                {validationErrors.expenseID && (
-                  <p className='text-red-500 text-sm'>{validationErrors.expenseID}</p>
-                )}
+          {/* Combined Record Button */}
+          <div className="flex flex-col items-center mb-6">
+            <button
+              type="button"
+              onClick={handleVoiceRecord}
+              className={`px-4 py-2 rounded text-white ${
+                listening ? 'bg-red-500 cursor-wait' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              {listening ? 'Listening…' : '🎙️ Record Amount & Name'}
+            </button>
+            {listening && (
+              <div className="flex space-x-1 mt-2">
+                {[...Array(4)].map((_, i) => (
+                  <span
+                    key={i}
+                    className={`block w-2 h-2 bg-blue-500 animate-pulse delay-${i * 200}`}
+                  />
+                ))}
               </div>
+            )}
+          </div>
 
-              {/* Expense Name */}
-              <div>
-                <label className='block mb-1 text-sm font-medium text-gray-700'>Expense Name</label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Expense ID */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Expense ID</label>
+              <input
+                type="text"
+                name="expenseID"
+                value={expense.expenseID}
+                onChange={handleChange}
+                className="mt-1 p-2 border rounded w-full"
+                required
+              />
+              {validationErrors.expenseID && (
+                <p className="text-red-500 text-xs">{validationErrors.expenseID}</p>
+              )}
+            </div>
+
+            {/* Expense Name with fallback mic */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700">Expense Name</label>
                 <input
-                  type='text'
-                  name='expenseName'
-                  className='p-3 border border-gray-300 rounded w-full'
+                  type="text"
+                  name="expenseName"
+                  value={expense.expenseName}
                   onChange={handleChange}
+                  placeholder="e.g., Foodcity"
+                  className="mt-1 p-2 border rounded w-full"
                   required
                 />
                 {validationErrors.expenseName && (
-                  <p className='text-red-500 text-sm'>{validationErrors.expenseName}</p>
+                  <p className="text-red-500 text-xs">{validationErrors.expenseName}</p>
                 )}
               </div>
-
-              {/* Expense Category */}
-              <div>
-                <label className='block mb-1 text-sm font-medium text-gray-700'>Expense Category</label>
-                <select
-                  name='expenseCategory'
-                  className='p-3 border border-gray-300 rounded w-full'
-                  value={expense.expenseCategory}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value='' disabled>Select Expense Category</option>
-                  <option value='Others'>Default</option>
-                  <option value='Medical Expenses'>Medical Expenses</option>
-                  <option value='Donation'>Donation</option>
-                  <option value='Personal care'>Personal care</option>
-                  <option value='Home appliances'>Home appliances</option>
-                  <option value='Grocery'>Grocery</option>
-                  <option value='Others'>Others</option>
-                </select>
-                {validationErrors.expenseCategory && (
-                  <p className='text-red-500 text-sm'>{validationErrors.expenseCategory}</p>
-                )}
-              </div>
-
-              {/* Expense Amount */}
-              <div>
-                <label className='block mb-1 text-sm font-medium text-gray-700'>Expense Amount</label>
-                <div className="flex items-center border border-gray-300 rounded px-3">
-                  <span className="text-gray-500 mr-1">Rs.</span>
-                  <input
-                    type="number"
-                    name="expenseAmount"
-                    placeholder="500"
-                    className="w-full py-2 outline-none"
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                {validationErrors.expenseAmount && (
-                  <p className='text-red-500 text-sm'>{validationErrors.expenseAmount}</p>
-                )}
-              </div>
-
-              {/* Date */}
-              <div>
-                <label className='block mb-1 text-sm font-medium text-gray-700'>Date</label>
-                <input
-                  type='date'
-                  name='date'
-                  className='p-3 border border-gray-300 rounded w-full'
-                  onChange={handleChange}
-                  required
-                />
-                {validationErrors.date && (
-                  <p className='text-red-500 text-sm'>{validationErrors.date}</p>
-                )}
-              </div>
-
+              <button
+                type="button"
+                onClick={handleRecordName}
+                className="mt-6 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+              >
+                🎤 Name
+              </button>
             </div>
 
+            {/* Expense Amount with fallback mic */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700">Expense Amount (Rs.)</label>
+                <input
+                  type="number"
+                  name="expenseAmount"
+                  value={expense.expenseAmount}
+                  onChange={handleChange}
+                  placeholder="e.g., 500"
+                  className="mt-1 p-2 border rounded w-full"
+                  required
+                />
+                {validationErrors.expenseAmount && (
+                  <p className="text-red-500 text-xs">{validationErrors.expenseAmount}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={handleRecordAmount}
+                className="mt-6 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+              >
+                🎤 Amt
+              </button>
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Expense Category</label>
+              <select
+                name="expenseCategory"
+                value={expense.expenseCategory}
+                onChange={handleChange}
+                className="mt-1 p-2 border rounded w-full"
+              >
+                <option value="">Default</option>
+                <option value="Medical Expenses">Medical Expenses</option>
+                <option value="Donation">Donation</option>
+                <option value="Personal care">Personal care</option>
+                <option value="Home appliances">Home appliances</option>
+                <option value="Grocery">Grocery</option>
+                <option value="Others">Others</option>
+              </select>
+              {validationErrors.expenseCategory && (
+                <p className="text-red-500 text-xs">{validationErrors.expenseCategory}</p>
+              )}
+            </div>
+
+            {/* Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Date</label>
+              <input
+                type="date"
+                name="date"
+                value={expense.date}
+                onChange={handleChange}
+                className="mt-1 p-2 border rounded w-full"
+              />
+              {validationErrors.date && (
+                <p className="text-red-500 text-xs">{validationErrors.date}</p>
+              )}
+            </div>
+
+            {/* Submit */}
             <button
-              type='submit'
-              className='mt-4 w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all'
+              type="submit"
               disabled={loading}
+              className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 mt-4"
             >
-              {loading ? 'Submitting...' : 'Submit'}
+              {loading ? 'Submitting…' : 'Submit'}
             </button>
           </form>
         </div>
