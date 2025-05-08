@@ -8,6 +8,7 @@ import Dashboard from '../../components/Dashboard';
 import DeleteTaxRelief from './deleteTaxRelief';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { AiOutlineSearch } from 'react-icons/ai';
 
 
 const TaxReliefCalculation = () => { 
@@ -173,17 +174,22 @@ const TaxReliefCalculation = () => {
         <Spinner />
       ) : (
         <div className='p-4 overflow-auto bg-white rounded-lg shadow-md'>
-          <div className='flex justify-end gap-2 pt-2 pb-4'>
-            
-            <input
-          type='text'
-          placeholder='Search by Year'
+          <div className="flex items-center justify-end gap-2 pt-2 pb-4">
+           <div className="relative">
+           <AiOutlineSearch className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
+          <input
+          type="text"
+          placeholder="Search by Year…"
           value={searchYear}
-          onChange={(e) => setSearchYear(e.target.value)}
-          className='flex justify-center gap-2 px-3 pt-1 pb-3 font-semibold text-black border border-black rounded'
-        />
-            <Link to='/taxRelief/addTaxRelief' className='flex items-center px-4 py-2 font-bold text-white bg-blue-600 rounded hover:bg-blue-800'>
-              <MdOutlineAddBox className='mr-2' /> Add Tax Relief
+          onChange={e => setSearchYear(e.target.value)}
+          className="w-64 py-2 pl-10 pr-4 text-sm font-medium text-gray-700 transition border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            />
+           </div>
+            <Link
+             to="/taxRelief/addTaxRelief"
+             className="flex items-center px-4 py-2 font-bold text-white transition bg-blue-600 rounded hover:bg-blue-800"
+            >
+              <MdOutlineAddBox className="mr-2" /> Add Tax Relief
             </Link>
           </div>
           
