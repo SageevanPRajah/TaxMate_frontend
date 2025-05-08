@@ -258,13 +258,13 @@ const TaxReliefCalculation = () => {
         </div>
       )}
 
-      {selectedTax && (
-        <DeleteTaxRelief
-          taxRelief={selectedTax}
-          onClose={() => setSelectedTax(null)}
-          onDelete={handleDelete}
-        />
-      )}
+    {selectedTax && (
+      <DeleteTaxRelief
+        taxRelief={selectedTax}
+        onClose={() => setSelectedTax(null)}
+        onDelete={handleDelete}
+      />
+    )}
     </Dashboard>
   );
 };
