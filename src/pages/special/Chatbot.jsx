@@ -1,30 +1,49 @@
-import React, { useState } from "react";
-import Dashboard from "../../components/Dashboard";
-import { AiOutlineSend, AiOutlineMessage } from "react-icons/ai";
+// src/pages/special/Chatbot.jsx
 
-const Chatbot = () => {
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import Dashboard from '../../components/Dashboard.jsx';
+import { AiOutlineSend, AiOutlineMessage } from 'react-icons/ai';
+
+export default function Chatbot() {
+  const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hello! How can I assist you with your taxes today?" }
+    { role: 'system', content: 'You are a helpful tax assistant.' }
   ]);
-  const [input, setInput] = useState("");
+  const endRef = useRef(null);
 
-  const handleSend = () => {
+  // Scroll to bottom on new message
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = async () => {
     if (!input.trim()) return;
-    const newMessages = [...messages, { from: "user", text: input }];
-    setMessages(newMessages);
-    setInput("");
+    const userMsg = { role: 'user', content: input };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
 
-    // Placeholder response (you can later replace this with API call)
-    setTimeout(() => {
+    try {
+      const { data } = await axios.post('http://localhost:5559/api/chat', {
+        message: userMsg.content,
+        history: messages
+      });
+      const botMsg = { role: 'assistant', content: data.reply };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (err) {
+      console.error(err);
       setMessages((prev) => [
         ...prev,
-        { from: "bot", text: "Thank you for your message!" }
+        { role: 'assistant', content: 'Sorry, something went wrong.' }
       ]);
-    }, 500);
+    }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") handleSend();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
@@ -34,7 +53,9 @@ const Chatbot = () => {
           <AiOutlineMessage className="text-blue-600 w-8 h-8" />
           TaxMate Chatbot
         </h1>
-        <p className="text-gray-600 mb-6">Ask anything about taxes, income, expenses, or the platform.</p>
+        <p className="text-gray-600 mb-6">
+          Ask anything about taxes, income, expenses, or the platform.
+        </p>
 
         <div className="bg-white shadow-md rounded-xl p-6 flex flex-col h-[70vh] max-h-[70vh]">
           {/* Chat Area */}
@@ -43,14 +64,15 @@ const Chatbot = () => {
               <div
                 key={i}
                 className={`max-w-[75%] px-4 py-2 rounded-xl text-sm ${
-                  msg.from === "user"
-                    ? "ml-auto bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-800"
+                  msg.role === 'user'
+                    ? 'ml-auto bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-800'
                 }`}
               >
-                {msg.text}
+                {msg.content}
               </div>
             ))}
+            <div ref={endRef} />
           </div>
 
           {/* Input Area */}
@@ -74,6 +96,4 @@ const Chatbot = () => {
       </div>
     </Dashboard>
   );
-};
-
-export default Chatbot;
+}
