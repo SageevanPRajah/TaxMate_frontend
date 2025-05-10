@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';  
+import { useLocation, Link } from 'react-router-dom'; 
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineEdit, AiOutlineSearch } from 'react-icons/ai';
 import { MdOutlineAddBox, MdOutlineDelete } from 'react-icons/md';
 import Spinner from '../../components/Spinner';
 import Dashboard from '../../components/Dashboard';
 import DeleteTaxRelief from './deleteTaxRelief';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { AiOutlineSearch } from 'react-icons/ai';
+import { useAuth } from '../../hooks/useAuth.js'; 
 
 
-const TaxReliefCalculation = () => { 
+const TaxReliefCalculation = () => {
+  const { user } = useAuth();                 // ← get logged-in user
+  const location = useLocation();             // ← track navigation
+
   const [taxReliefs, setTaxReliefs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedTax, setSelectedTax] = useState(null); 
+  const [selectedTax, setSelectedTax] = useState(null);
   const [taxRates, setTaxRates] = useState([]);
   const [searchYear, setSearchYear] = useState('');
 
@@ -53,23 +56,22 @@ const TaxReliefCalculation = () => {
       });
   }, []);
 
-  useEffect(() => {
+  // fetch and filter this user's tax reliefs
+  const fetchTaxReliefs = () => {
+    if (!user?.id) return;
     setLoading(true);
     axios.get('http://localhost:5559/taxRelief')
       .then(response => {
-        setTaxReliefs(response.data.data || response.data);
-        setLoading(false);
+        const all = response.data.data || response.data;
+        const own = all.filter(tr => tr.userID === user.id);
+        setTaxReliefs(own);
       })
-      .catch(error => {
-        console.error(error);
-        setLoading(false);
-      });
-  }, []);
-
-  const handleDelete = (id) => {
-    setTaxReliefs(taxReliefs.filter(tax => tax._id !== id));
-    setSelectedTax(null);
+      .catch(console.error)
+      .finally(() => setLoading(false));
   };
+
+  // re-run on login or whenever we return to this route
+  useEffect(fetchTaxReliefs, [user, location.pathname]);
 
   const generatePDFReport = () => {
     const doc = new jsPDF();

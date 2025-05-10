@@ -13,7 +13,6 @@ const CreateExpense = () => {
 
   const [expense, setExpense] = useState({
     userID: '',
-    expenseID: '',
     expenseName: '',
     expenseCategory: '',
     expenseAmount: '',
@@ -67,9 +66,6 @@ const CreateExpense = () => {
     const errs = {};
     if (!data.userID) {
       errs.userID = 'User ID is required.';
-    }
-    if (!/^[a-zA-Z0-9]{3,}$/.test(data.expenseID)) {
-      errs.expenseID = 'ID must be alphanumeric, ≥3 chars.';
     }
     if (!data.expenseName || data.expenseName.length < 3) {
       errs.expenseName = 'Name ≥3 chars.';
@@ -157,21 +153,6 @@ const CreateExpense = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Expense ID */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Expense ID</label>
-              <input
-                type="text"
-                name="expenseID"
-                value={expense.expenseID}
-                onChange={handleChange}
-                className="mt-1 p-2 border rounded w-full"
-                required
-              />
-              {validationErrors.expenseID && (
-                <p className="text-red-500 text-xs">{validationErrors.expenseID}</p>
-              )}
-            </div>
 
             {/* Expense Name */}
             <div className="flex items-center gap-2">
