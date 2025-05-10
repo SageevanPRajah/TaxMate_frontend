@@ -1,33 +1,52 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
-import Dashboard from "../../components/Dashboard";
-import { AiOutlineEdit, AiOutlineLogout, AiOutlineCamera } from "react-icons/ai";
+import Dashboard from "../../components/Dashboard";              // taxpayer/default
+import Dashboard2 from "../../components/AdminDashboard";        // admin
+import Dashboard3 from "../../components/superAdminDashboard";   // superAdmin
+import {
+  AiOutlineEdit,
+  AiOutlineLogout,
+  AiOutlineCamera,
+} from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [image, setImage] = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState(null);
+
+  // Choose the correct Dashboard wrapper
+  const DashboardWrapper = (() => {
+    switch (user?.role) {
+      case "admin":
+        return Dashboard2;
+      case "superAdmin":
+        return Dashboard3;
+      default:
+        return Dashboard;
+    }
+  })();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-        const response = await axios.get("http://localhost:5559/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setProfile(response.data);
-      } catch (err) {
+        const token = localStorage.getItem("token") 
+                   || sessionStorage.getItem("token");
+        const { data } = await axios.get(
+          "http://localhost:5559/users/profile",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setProfile(data);
+      } catch {
         setError("Failed to load profile.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, []);
 
@@ -36,38 +55,38 @@ const Profile = () => {
     navigate("/login");
   };
 
-  // Handle Image Upload
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append("profilePicture", file);
 
     try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const response = await axios.post("http://localhost:5559/users/upload-profile", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      setProfile((prev) => ({
-        ...prev,
-        profilePicture: response.data.url,
-      }));
-    } catch (err) {
-      console.error("Error uploading image:", err);
+      const token = localStorage.getItem("token") 
+                 || sessionStorage.getItem("token");
+      const { data } = await axios.post(
+        "http://localhost:5559/users/upload-profile",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setProfile((p) => ({ ...p, profilePicture: data.url }));
+    } catch {
       setError("Failed to upload image.");
     }
   };
 
   return (
-    <Dashboard>
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] ">
+    <DashboardWrapper>
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
         <div className="bg-white p-10 rounded-lg shadow-xl w-[32rem] backdrop-blur-lg">
-          <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Profile</h2>
+          <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+            Profile
+          </h2>
 
           {loading ? (
             <p className="text-center text-gray-500">Loading...</p>
@@ -83,14 +102,23 @@ const Profile = () => {
                 />
                 <label className="absolute bottom-0 right-0 bg-gray-200 p-2 rounded-full cursor-pointer shadow-lg">
                   <AiOutlineCamera size={20} />
-                  <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleImageChange}
+                    accept="image/*"
+                  />
                 </label>
               </div>
 
-              <h3 className="text-2xl font-semibold mt-4">{profile?.firstName} {profile?.lastName}</h3>
-              <p className="text-gray-600">{profile?.email}</p>
-              <p className="text-gray-500">Role: {profile?.role}</p>
-              <p className="text-gray-500">DOB: {new Date(profile?.dateOfBirth).toLocaleDateString()}</p>
+              <h3 className="text-2xl font-semibold mt-4">
+                {profile.firstName} {profile.lastName}
+              </h3>
+              <p className="text-gray-600">{profile.email}</p>
+              <p className="text-gray-500">Role: {profile.role}</p>
+              <p className="text-gray-500">
+                DOB: {new Date(profile.dateOfBirth).toLocaleDateString()}
+              </p>
 
               <div className="mt-6 flex justify-center gap-4">
                 <button
@@ -110,7 +138,7 @@ const Profile = () => {
           )}
         </div>
       </div>
-    </Dashboard>
+    </DashboardWrapper>
   );
 };
 
