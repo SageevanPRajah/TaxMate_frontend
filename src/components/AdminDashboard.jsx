@@ -4,26 +4,22 @@ import { useAuth } from '../hooks/useAuth';
 import { AiOutlineBell } from 'react-icons/ai';
 import {
   BsRobot,
-  BsGraphUpArrow,
-  BsGraphDownArrow,
-  BsBank2,
-  BsCreditCard2BackFill,
-  BsCashCoin,
+
+
   BsPercent,
   BsArrowLeftCircle,
   BsArrowRightCircle,
 } from 'react-icons/bs';
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 
 const Dashboard = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems = [
-    { to: '/income', icon: BsGraphUpArrow, label: 'Income' },
-    { to: '/expense', icon: BsGraphDownArrow, label: 'Expenses' },
-    { to: '/assets', icon: BsBank2, label: 'Assets' },
-    { to: '/liabilities', icon: BsCreditCard2BackFill, label: 'Liabilities' },
-    { to: '/taxRelief', icon: BsCashCoin, label: 'Tax Payment' },
+    
+    { to: '/adminAnswer', icon: IoChatbubbleEllipsesOutline , label: 'Q & A' },
+    { to: '/taxrate', icon: BsPercent, label: 'Tax Rate' },
   ];
 
   return (
