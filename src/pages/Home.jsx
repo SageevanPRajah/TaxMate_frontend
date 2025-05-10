@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Dashboard from '../components/Dashboard2.jsx';
 import {
   AiOutlineBulb,
@@ -8,6 +8,8 @@ import {
   AiOutlineSync,
   AiOutlineBarChart,
 } from "react-icons/ai";
+import { useAuth } from '../hooks/useAuth';
+import axios from 'axios';
 
 const testimonials = [
   {
@@ -42,7 +44,36 @@ const governmentLinks = [
   },
 ];
 
+
 const Home = () => {
+
+  const { user, isAuthenticated } = useAuth();
+  const [question, setQuestion] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      await axios.post(
+        'http://localhost:5559/questions',
+        { question },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      alert('Question submitted!');
+      setQuestion('');
+    } catch (err) {
+      // show the actual error message returned from your API
+      const msg = err.response?.data?.message || err.message;
+      alert(`Failed to submit question: ${msg}`);
+    }
+  };
+  
+
   return (
     <Dashboard>
       <div className="bg-blue-50 min-h-screen">
@@ -63,18 +94,14 @@ const Home = () => {
         </div>
 
         {/* Right side - Sketchfab 3D model */}
-        <div className="flex-1 w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-xl">
-          <iframe
-            title="Dual power office calculator"
-            frameBorder="0"
-            allow="autoplay; fullscreen; xr-spatial-tracking"
-            mozAllowFullScreen={true}
-            webkitAllowFullScreen={true}
-            allowFullScreen={false}
-            className="w-full h-full"
-            src="https://sketchfab.com/models/7f5cdd32581247feaf9c0d0d42b2a17f/embed?autostart=1&preload=1&transparent=1&ui_hint=0&ui_infos=0&ui_controls=0&ui_watermark=0&ui_stop=0&ui_fullscreen=0&ui_settings=0"
-          ></iframe>
+        <div className="mt-4 flex-1 w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-xl">
+          <img
+            src="/ChatGPT.png"
+            alt="ChatGPT"
+            className="w-full h-full object-cover"
+          />
         </div>
+
       </div>
 
       <div className="px-6 mb-16">
@@ -165,6 +192,57 @@ const Home = () => {
         ))}
       </div>
     </div>
+
+
+    {/* ── Ask a Question ── */}
+    <div className="px-6 mb-20">
+        <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">
+          Ask a Question
+        </h2>
+
+        {isAuthenticated ? (
+          <form
+            onSubmit={handleSubmit}
+            className="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-md"
+          >
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                value={`${user.firstName} ${user.lastName}`}
+                readOnly
+                className="w-full border border-gray-300 p-2 rounded bg-gray-100"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-1">Your Question</label>
+              <textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                required
+                rows={4}
+                placeholder="Type your question here..."
+                className="w-full border border-gray-300 p-2 rounded"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={!question.trim()}
+              className="bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+            >
+              Submit
+            </button>
+          </form>
+        ) : (
+          <p className="text-center">
+            Please{' '}
+            <a href="/login" className="text-blue-600 underline">
+              log in
+            </a>{' '}
+            to ask a question.
+          </p>
+        )}
+      </div>
     
     
       {/* Footer */}

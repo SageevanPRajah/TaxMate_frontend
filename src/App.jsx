@@ -5,6 +5,7 @@ import {Routes, Route} from 'react-router-dom'
 import Home from './pages/Home.jsx';
 import Notification from './pages/special/Notification.jsx';
 import Chatbot from './pages/special/Chatbot.jsx';
+import QanaA from './pages/question/QanaA.jsx';
 
 //Auth
 import Login from './pages/auth/Login.jsx';
@@ -65,6 +66,7 @@ const App = () => {
       <Route path="/" element={<Home />} />
       <Route path="/notification" element={<Notification />} />
       <Route path="/chat" element={<Chatbot />} />
+      <Route path="/adminAnswer" element={<QanaA />} />
       
       {/** Auth */}
       <Route path="/login" element={<Login />} />
