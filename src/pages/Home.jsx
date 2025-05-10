@@ -94,18 +94,14 @@ const Home = () => {
         </div>
 
         {/* Right side - Sketchfab 3D model */}
-        <div className="flex-1 w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-xl">
-          <iframe
-            title="Dual power office calculator"
-            frameBorder="0"
-            allow="autoplay; fullscreen; xr-spatial-tracking"
-            mozAllowFullScreen={true}
-            webkitAllowFullScreen={true}
-            allowFullScreen={false}
-            className="w-full h-full"
-            src="https://sketchfab.com/models/7f5cdd32581247feaf9c0d0d42b2a17f/embed?autostart=1&preload=1&transparent=1&ui_hint=0&ui_infos=0&ui_controls=0&ui_watermark=0&ui_stop=0&ui_fullscreen=0&ui_settings=0"
-          ></iframe>
+        <div className="mt-4 flex-1 w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-xl">
+          <img
+            src="/ChatGPT.png"
+            alt="ChatGPT"
+            className="w-full h-full object-cover"
+          />
         </div>
+
       </div>
 
       <div className="px-6 mb-16">

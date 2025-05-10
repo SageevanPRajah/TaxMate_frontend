@@ -24,7 +24,6 @@ const Dashboard = ({ children }) => {
     { to: '/assets', icon: BsBank2, label: 'Assets' },
     { to: '/liabilities', icon: BsCreditCard2BackFill, label: 'Liabilities' },
     { to: '/taxRelief', icon: BsCashCoin, label: 'Tax Payment' },
-    { to: '/taxrate', icon: BsPercent, label: 'Tax Rate' },
   ];
 
   return (

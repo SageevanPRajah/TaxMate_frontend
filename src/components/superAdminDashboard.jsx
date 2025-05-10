@@ -4,22 +4,19 @@ import { useAuth } from '../hooks/useAuth';
 import { AiOutlineBell } from 'react-icons/ai';
 import {
   BsRobot,
-
-  FaCircleUser ,
-
   BsArrowLeftCircle,
   BsArrowRightCircle,
+  BsPersonCircle,
 } from 'react-icons/bs';
+
 
 
 const Dashboard = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const menuItems = [
-    
-    
-    { to: '/profileIndex', icon: FaCircleUser , label: 'User Access' },
+  const menuItems = [ 
+    { to: '/profileIndex', icon: BsPersonCircle , label: 'User Access' },
   ];
 
   return (
