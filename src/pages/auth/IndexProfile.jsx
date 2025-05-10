@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Dashboard from "../../components/Dashboard";
+import Dashboard from "../../components/superAdminDashboard.jsx";
 import { AiOutlineEdit } from "react-icons/ai";
 import { MdOutlineDelete } from "react-icons/md";
 
@@ -16,7 +16,12 @@ const IndexUser = () => {
         const res = await axios.get("http://localhost:5559/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUsers(res.data);
+
+        // only keep admin or taxpayer
+        const visible = res.data.filter(
+          (u) => u.role === "admin" || u.role === "taxpayer"
+        );
+        setUsers(visible);
       } catch (err) {
         console.error("Failed to load users", err);
       } finally {
@@ -53,7 +58,7 @@ const IndexUser = () => {
       await axios.delete(`http://localhost:5559/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUsers(users.filter((user) => user._id !== userId));
+      setUsers((prev) => prev.filter((user) => user._id !== userId));
     } catch (err) {
       console.error("Failed to delete user", err);
     }
@@ -80,9 +85,7 @@ const IndexUser = () => {
               {users.map((user, i) => (
                 <tr key={user._id} className="border-b">
                   <td className="p-3">{i + 1}</td>
-                  <td className="p-3">
-                    {user.firstName} {user.lastName}
-                  </td>
+                  <td className="p-3">{user.firstName} {user.lastName}</td>
                   <td className="p-3">{user.email}</td>
                   <td className="p-3">
                     {editingRole[user._id] ? (
